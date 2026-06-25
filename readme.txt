@@ -4,7 +4,7 @@ Tags: cookies, consent, gdpr, ccpa, privacy, opt-out, gpc
 Requires at least: 5.6
 Tested up to: 7.0
 Requires PHP: 7.2
-Stable tag: 1.5.1
+Stable tag: 1.5.2
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -71,6 +71,13 @@ React to consent:
 Filters: `rocoo_country`, `rocoo_should_render`, `rocoo_gated_blocks`.
 
 == Changelog ==
+
+= 1.5.2 =
+* Setup tab: the three protection levels now stay side by side (3-column grid) instead
+  of wrapping the third card to a new row; removed the redundant intro line.
+* Corrected the "How this affects your tracking data" note so it accurately describes
+  each level — in particular that Basic and Balanced track US visitors who ignore the
+  banner (opt-out), unlike Maximum.
 
 = 1.5.1 =
 * Maintenance: confirmed compatibility with WordPress 7.0 ("Tested up to" bump). This

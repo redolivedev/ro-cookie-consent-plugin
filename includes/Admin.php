@@ -345,8 +345,6 @@ class Admin {
 
 				<!-- SETUP -->
 				<section class="rocoo-tabpane" data-pane="setup">
-					<p class="description"><?php esc_html_e( 'Most sites only need this tab. Choose a compliance level — it configures the legal mechanics for you. The other tabs are advanced and optional.', 'red-olive-cookie-opt-out' ); ?></p>
-
 					<div class="rocoo-setup-layout">
 					<div class="rocoo-setup-main">
 
@@ -354,7 +352,7 @@ class Admin {
 					$rocoo_modes   = Modes::meta();
 					$rocoo_current = Modes::current( $s );
 					?>
-					<div class="rocoo-callout"><p><strong><?php esc_html_e( 'How this affects your tracking data:', 'red-olive-cookie-opt-out' ); ?></strong> <?php esc_html_e( 'Whichever level you pick, visitors who decline or ignore the banner are not individually tracked, so your Google Analytics and Google Ads numbers reflect only consenting visitors plus Google Consent Mode modeled estimates. More protection means fewer tracked visitors.', 'red-olive-cookie-opt-out' ); ?></p></div>
+					<div class="rocoo-callout"><p><strong><?php esc_html_e( 'How this affects your tracking data:', 'red-olive-cookie-opt-out' ); ?></strong> <?php esc_html_e( 'Visitors who choose "Necessary only" are never individually tracked, on any level. What differs is the visitor who ignores the banner: Maximum tracks no one until they click Allow; Balanced lets Google Analytics run for US visitors by default (Google Ads and the Meta pixel still wait for consent); Basic tracks US visitors in full by default until they opt out. EU/UK visitors are always opt-in. More protection means fewer tracked visitors — and Maximum and Balanced add Google Consent Mode to model the ones you do not track.', 'red-olive-cookie-opt-out' ); ?></p></div>
 					<div class="rocoo-card">
 						<div class="rocoo-card__head"><span class="rocoo-card__num">1</span><span class="rocoo-card__title"><?php esc_html_e( 'Choose your protection level', 'red-olive-cookie-opt-out' ); ?></span></div>
 						<div class="rocoo-card__body">
