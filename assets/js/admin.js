@@ -47,6 +47,16 @@
 			$(this).closest('.rocoo-mode-card').addClass('is-selected');
 		});
 
+		// First-run disclaimer gate: enable "Accept & continue" only once the box
+		// is ticked. (The server also requires the checkbox, so this is just UX.)
+		var $gateCheck = $('.rocoo-gate__check');
+		var $gateBtn = $('.rocoo-gate__accept');
+		if ($gateCheck.length && $gateBtn.length) {
+			$gateCheck.on('change', function () {
+				$gateBtn.prop('disabled', !this.checked);
+			});
+		}
+
 		// Coexist with WAFs (e.g. Wordfence) that return a 403 when they see a raw
 		// <script> in any POST field. On submit, base64-encode the custom-script
 		// blobs into hidden fields (decoded server-side) and drop the raw textareas

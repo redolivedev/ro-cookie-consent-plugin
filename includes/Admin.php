@@ -23,6 +23,7 @@ class Admin {
 		add_action( 'admin_menu', array( $this, 'menu' ) );
 		add_action( 'admin_enqueue_scripts', array( $this, 'assets' ) );
 		add_action( 'admin_post_rocoo_save', array( $this, 'save' ) );
+		add_action( 'admin_post_rocoo_accept_terms', array( $this, 'accept_terms' ) );
 		add_action( 'admin_post_rocoo_clear_log', array( $this, 'clear_log' ) );
 		add_action( 'admin_post_rocoo_export_log', array( $this, 'export_log' ) );
 		add_filter( 'plugin_action_links_' . plugin_basename( ROCOO_FILE ), array( $this, 'action_links' ) );
@@ -85,9 +86,33 @@ class Admin {
 		$clean = Settings::sanitize( is_array( $raw ) ? $raw : array(), $current );
 		update_option( ROCOO_OPTION, $clean );
 
-		// Record a one-time, dated acceptance of the use & liability disclaimer
-		// (who / when / which plugin version) so there is proof the owner accepted it.
-		if ( ! empty( $raw['terms_ack'] ) && ! get_option( 'rocoo_terms_ack' ) ) {
+		$reprompted = ( (int) $clean['consent_version'] !== (int) $current['consent_version'] );
+		wp_safe_redirect( add_query_arg(
+			array(
+				'page'       => self::SLUG,
+				'updated'    => '1',
+				'reprompted' => $reprompted ? '1' : '0',
+			),
+			admin_url( 'admin.php' )
+		) );
+		exit;
+	}
+
+	/**
+	 * Record the one-time use & liability disclaimer acceptance from the first-run
+	 * gate, then return to the settings page. Stores who / when / which plugin
+	 * version, once, as proof the owner accepted before configuring anything.
+	 */
+	public function accept_terms() {
+		if ( ! current_user_can( 'manage_options' ) ) {
+			wp_die( esc_html__( 'Permission denied.', 'red-olive-cookie-opt-out' ) );
+		}
+		check_admin_referer( 'rocoo_accept_terms' );
+
+		// Only record when the box was actually ticked, and never overwrite a
+		// prior acceptance. If unticked, we fall through and the gate re-renders.
+		// phpcs:ignore WordPress.Security.NonceVerification.Missing -- verified above.
+		if ( ! empty( $_POST['terms_ack'] ) && ! get_option( 'rocoo_terms_ack' ) ) {
 			$user = wp_get_current_user();
 			update_option(
 				'rocoo_terms_ack',
@@ -100,12 +125,11 @@ class Admin {
 			);
 		}
 
-		$reprompted = ( (int) $clean['consent_version'] !== (int) $current['consent_version'] );
+		$accepted = (bool) get_option( 'rocoo_terms_ack' );
 		wp_safe_redirect( add_query_arg(
 			array(
-				'page'       => self::SLUG,
-				'updated'    => '1',
-				'reprompted' => $reprompted ? '1' : '0',
+				'page'    => self::SLUG,
+				'welcome' => $accepted ? '1' : '0',
 			),
 			admin_url( 'admin.php' )
 		) );
@@ -301,6 +325,100 @@ class Admin {
 			? array( 'state' => 'ok', 'label' => __( 'Proof-of-consent log', 'red-olive-cookie-opt-out' ), 'value' => __( 'On', 'red-olive-cookie-opt-out' ) )
 			: array( 'state' => 'info', 'label' => __( 'Proof-of-consent log', 'red-olive-cookie-opt-out' ), 'value' => __( 'Off (cookie record only)', 'red-olive-cookie-opt-out' ) );
 
+		// --- Deployment environment checks: the real-site risks that silently
+		// bypass the gate. Detected from the active-plugins list (best effort —
+		// host/CDN caches and per-plugin settings aren't visible from here). ---
+		$active = (array) get_option( 'active_plugins', array() );
+		if ( is_multisite() ) {
+			$active = array_merge( $active, array_keys( (array) get_site_option( 'active_sitewide_plugins', array() ) ) );
+		}
+		$detect = function ( $map ) use ( $active ) {
+			$found = array();
+			foreach ( $map as $file => $label ) {
+				if ( in_array( $file, $active, true ) ) {
+					$found[] = $label;
+				}
+			}
+			return $found;
+		};
+
+		// #2 — tag injectors that fire OUTSIDE this plugin's gate (pre-consent),
+		// which makes the banner decorative for whatever they load.
+		$injectors = $detect( array(
+			'google-site-kit/google-site-kit.php'                                               => 'Site Kit',
+			'duracelltomi-google-tag-manager/duracelltomi-google-tag-manager-for-wordpress.php' => 'GTM4WP',
+			'google-analytics-for-wordpress/googleanalytics.php'                                 => 'MonsterInsights',
+			'ga-google-analytics/ga-google-analytics.php'                                        => 'GA Google Analytics',
+			'google-analytics-dashboard-for-wp/gadwp.php'                                        => 'ExactMetrics',
+			'pixelyoursite/pixelyoursite.php'                                                    => 'PixelYourSite',
+			'header-footer-code-manager/header-footer-code-manager.php'                          => 'Header Footer Code Manager',
+			'insert-headers-and-footers/ihaf.php'                                                => 'WPCode',
+		) );
+		if ( $injectors ) {
+			$rows[] = array(
+				'state' => 'warn',
+				'label' => __( 'Trackers outside this plugin', 'red-olive-cookie-opt-out' ),
+				/* translators: %s: comma-separated plugin names. */
+				'value' => sprintf( __( '%s can inject tags that fire before consent — this plugin can\'t gate those, so the banner is decorative for them. Route those tags through this plugin, or remove the other plugin.', 'red-olive-cookie-opt-out' ), implode( ', ', $injectors ) ),
+			);
+		}
+
+		// #1 — full-page caching vs the geo/GPC decision baked into the HTML.
+		// Maximum is cache-safe (same opt-in page for everyone); Basic/Balanced
+		// are not unless the cache varies by country.
+		$caches = $detect( array(
+			'wp-rocket/wp-rocket.php'             => 'WP Rocket',
+			'litespeed-cache/litespeed-cache.php' => 'LiteSpeed Cache',
+			'w3-total-cache/w3-total-cache.php'   => 'W3 Total Cache',
+			'wp-super-cache/wp-cache.php'         => 'WP Super Cache',
+			'wp-fastest-cache/wpFastestCache.php' => 'WP Fastest Cache',
+			'sg-cachepress/sg-cachepress.php'     => 'SG Optimizer',
+			'cache-enabler/cache-enabler.php'     => 'Cache Enabler',
+			'breeze/breeze.php'                   => 'Breeze',
+			'wp-optimize/wp-optimize.php'         => 'WP-Optimize',
+		) );
+		if ( $relies_geo ) {
+			$rows[] = $caches
+				? array(
+					'state' => 'warn',
+					'label' => __( 'Page caching vs geo', 'red-olive-cookie-opt-out' ),
+					/* translators: %s: comma-separated cache plugin names. */
+					'value' => sprintf( __( '%s detected. This level bakes the US-vs-EU (and GPC) decision into the page, which a full-page cache can serve to the wrong region. Vary the cache by country, or switch to Maximum (cache-safe).', 'red-olive-cookie-opt-out' ), implode( ', ', $caches ) ),
+				)
+				: array(
+					'state' => 'info',
+					'label' => __( 'Page caching vs geo', 'red-olive-cookie-opt-out' ),
+					'value' => __( 'This level bakes the US-vs-EU (and GPC) decision into the HTML. If any full-page cache sits in front (host or CDN, not just a plugin), make it vary by country — or use Maximum.', 'red-olive-cookie-opt-out' ),
+				);
+		} elseif ( $caches ) {
+			$rows[] = array(
+				'state' => 'ok',
+				'label' => __( 'Page caching', 'red-olive-cookie-opt-out' ),
+				/* translators: %s: comma-separated cache plugin names. */
+				'value' => sprintf( __( '%s detected — fine at Maximum: every visitor gets the same opt-in page and per-visitor state is applied client-side.', 'red-olive-cookie-opt-out' ), implode( ', ', $caches ) ),
+			);
+		}
+
+		// #3 — optimizers that can "delay JS until interaction," which would stop
+		// banner.js from ever running (we can't read their setting, so: advise).
+		$delayers = $detect( array(
+			'wp-rocket/wp-rocket.php'             => 'WP Rocket',
+			'litespeed-cache/litespeed-cache.php' => 'LiteSpeed Cache',
+			'perfmatters/perfmatters.php'         => 'Perfmatters',
+			'flying-scripts/flying-scripts.php'   => 'Flying Scripts',
+			'autoptimize/autoptimize.php'         => 'Autoptimize',
+			'wp-meteor/wp-meteor.php'             => 'WP Meteor',
+			'sg-cachepress/sg-cachepress.php'     => 'SG Optimizer',
+		) );
+		if ( $delayers ) {
+			$rows[] = array(
+				'state' => 'info',
+				'label' => __( 'JS delay / defer', 'red-olive-cookie-opt-out' ),
+				/* translators: %s: comma-separated plugin names. */
+				'value' => sprintf( __( '%s can delay JavaScript until interaction. If that is on, exclude assets/js/banner.js — otherwise the bar never appears and gated tags never load.', 'red-olive-cookie-opt-out' ), implode( ', ', $delayers ) ),
+			);
+		}
+
 		// Same tag in two places → it will load twice.
 		$blob  = (string) ( $s['scripts']['analytics'] ?? '' ) . (string) ( $s['scripts']['marketing'] ?? '' );
 		$dupes = array();
@@ -340,6 +458,48 @@ class Admin {
 	}
 
 	/**
+	 * First-run gate: the use & liability disclaimer as a content-area modal.
+	 *
+	 * Rendered INSTEAD of the tabs/settings form until the disclaimer is accepted,
+	 * so access to the plugin's configuration is genuinely blocked server-side
+	 * (not merely covered by a CSS overlay that JS could strip). The left admin
+	 * menu stays usable so the owner can navigate away without accepting.
+	 *
+	 * @param string $url admin-post.php endpoint.
+	 */
+	private function render_gate( $url ) {
+		?>
+		<div class="wrap rocoo-admin">
+			<h1 class="rocoo-admin__title">
+				<img class="rocoo-admin__logo" src="<?php echo esc_url( ROCOO_URL . 'assets/img/ro-logo-mark.svg' ); ?>" alt="Red Olive" width="34" height="34" />
+				<?php esc_html_e( 'Cookie Opt-Out', 'red-olive-cookie-opt-out' ); ?>
+			</h1>
+
+			<div class="rocoo-gate" role="dialog" aria-modal="true" aria-labelledby="rocoo-gate-title">
+				<div class="rocoo-gate__backdrop" aria-hidden="true"></div>
+				<div class="rocoo-gate__card">
+					<h2 id="rocoo-gate-title" class="rocoo-gate__title"><?php esc_html_e( 'Before you go live — please read.', 'red-olive-cookie-opt-out' ); ?></h2>
+					<div class="rocoo-gate__body">
+						<?php echo wp_kses_post( $this->disclaimer_html() ); ?>
+					</div>
+					<form method="post" action="<?php echo esc_url( $url ); ?>" class="rocoo-gate__form">
+						<input type="hidden" name="action" value="rocoo_accept_terms" />
+						<?php wp_nonce_field( 'rocoo_accept_terms' ); ?>
+						<label class="rocoo-gate__ack">
+							<input type="checkbox" name="terms_ack" value="1" class="rocoo-gate__check" />
+							<?php esc_html_e( 'I have read and accept this disclaimer.', 'red-olive-cookie-opt-out' ); ?>
+						</label>
+						<p class="rocoo-gate__actions">
+							<button type="submit" class="button button-primary button-hero rocoo-gate__accept" disabled><?php esc_html_e( 'Accept & continue to setup', 'red-olive-cookie-opt-out' ); ?></button>
+						</p>
+					</form>
+				</div>
+			</div>
+		</div>
+		<?php
+	}
+
+	/**
 	 * Render the settings page.
 	 */
 	public function render() {
@@ -348,6 +508,16 @@ class Admin {
 		}
 		$s   = Settings::all();
 		$url = admin_url( 'admin-post.php' );
+
+		// First-run gate: block all configuration until the disclaimer is accepted.
+		// Reuses the same acceptance record as the in-Setup panel, so a site that
+		// already accepted (e.g. on an earlier version) is never re-blocked.
+		$rocoo_terms_ack = get_option( 'rocoo_terms_ack' );
+		if ( ! is_array( $rocoo_terms_ack ) || empty( $rocoo_terms_ack['ts'] ) ) {
+			$this->render_gate( $url );
+			return;
+		}
+
 		$rocoo_log_count = count( Consent::log() );
 		?>
 		<div class="wrap rocoo-admin">
@@ -367,6 +537,9 @@ class Admin {
 			<?php if ( isset( $_GET['cleared'] ) ) : // phpcs:ignore WordPress.Security.NonceVerification.Recommended ?>
 				<div class="notice notice-success is-dismissible"><p><?php esc_html_e( 'Consent log cleared.', 'red-olive-cookie-opt-out' ); ?></p></div>
 			<?php endif; ?>
+			<?php if ( isset( $_GET['welcome'] ) && '1' === $_GET['welcome'] ) : // phpcs:ignore WordPress.Security.NonceVerification.Recommended ?>
+				<div class="notice notice-success is-dismissible"><p><?php esc_html_e( 'Disclaimer accepted — you\'re all set to configure the plugin.', 'red-olive-cookie-opt-out' ); ?></p></div>
+			<?php endif; ?>
 
 			<h2 class="nav-tab-wrapper rocoo-tabs">
 				<a href="#setup" class="nav-tab nav-tab-active" data-tab="setup"><?php esc_html_e( 'Setup', 'red-olive-cookie-opt-out' ); ?></a>
@@ -383,20 +556,21 @@ class Admin {
 					<div class="rocoo-setup-layout">
 					<div class="rocoo-setup-main">
 
-					<?php $rocoo_terms = get_option( 'rocoo_terms_ack' ); $rocoo_accepted = ( is_array( $rocoo_terms ) && ! empty( $rocoo_terms['ts'] ) ); ?>
-					<div class="rocoo-disclaimer <?php echo $rocoo_accepted ? 'is-accepted' : 'is-pending'; ?>">
-						<?php if ( $rocoo_accepted ) : ?>
+					<?php
+					// Acceptance is now collected by the first-run gate (render_gate),
+					// so by the time the Setup form renders it is always accepted; show
+					// the dated record for reference.
+					$rocoo_terms = get_option( 'rocoo_terms_ack' );
+					if ( is_array( $rocoo_terms ) && ! empty( $rocoo_terms['ts'] ) ) :
+						?>
+						<div class="rocoo-disclaimer is-accepted">
 							<span class="rocoo-disclaimer__ok"><?php
 								/* translators: 1: admin username, 2: date. */
 								printf( esc_html__( '✓ Disclaimer accepted by %1$s on %2$s.', 'red-olive-cookie-opt-out' ), esc_html( $rocoo_terms['user'] ? $rocoo_terms['user'] : __( 'an administrator', 'red-olive-cookie-opt-out' ) ), esc_html( gmdate( 'M j, Y', (int) $rocoo_terms['ts'] ) ) );
 							?></span>
 							<details class="rocoo-disclaimer__more"><summary><?php esc_html_e( 'View', 'red-olive-cookie-opt-out' ); ?></summary><?php echo wp_kses_post( $this->disclaimer_html() ); ?></details>
-						<?php else : ?>
-							<p class="rocoo-disclaimer__lead"><strong><?php esc_html_e( 'Before you go live — please read.', 'red-olive-cookie-opt-out' ); ?></strong></p>
-							<details class="rocoo-disclaimer__more" open><summary><?php esc_html_e( 'Use & liability disclaimer', 'red-olive-cookie-opt-out' ); ?></summary><?php echo wp_kses_post( $this->disclaimer_html() ); ?></details>
-							<label class="rocoo-disclaimer__ack"><input type="checkbox" name="rocoo[terms_ack]" value="1" /> <?php esc_html_e( 'I have read and accept this disclaimer.', 'red-olive-cookie-opt-out' ); ?></label>
-						<?php endif; ?>
-					</div>
+						</div>
+					<?php endif; ?>
 
 					<?php
 					$rocoo_modes   = Modes::meta();

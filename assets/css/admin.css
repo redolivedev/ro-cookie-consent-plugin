@@ -100,6 +100,49 @@
 .rocoo-admin .rocoo-disclaimer__more p { margin: 8px 0; font-size: 12.5px; line-height: 1.55; color: #50575e; }
 .rocoo-admin .rocoo-disclaimer__ack { display: block; margin-top: 8px; font-weight: 600; }
 .rocoo-admin .rocoo-disclaimer__ok { font-weight: 600; color: #1a7f37; }
+
+/* First-run disclaimer gate — content-area modal (blocks the settings UI until
+   accepted; the tabs/form aren't rendered server-side, so this is the only thing
+   on the page). The dim backdrop gives the modal feel; the left admin menu stays
+   usable. */
+.rocoo-admin .rocoo-gate {
+	position: relative;
+	min-height: 62vh;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	margin: 16px 20px 0 0;
+}
+.rocoo-admin .rocoo-gate__backdrop {
+	position: absolute;
+	inset: 0;
+	background: rgba(0, 0, 0, .06);
+	border-radius: 10px;
+}
+.rocoo-admin .rocoo-gate__card {
+	position: relative;
+	z-index: 1;
+	width: 100%;
+	max-width: 620px;
+	background: #fff;
+	border: 1px solid #c3c4c7;
+	border-top: 4px solid #d63638;
+	border-radius: 10px;
+	box-shadow: 0 12px 40px rgba(0, 0, 0, .18);
+	padding: 26px 30px 22px;
+}
+.rocoo-admin .rocoo-gate__title { margin: 0 0 12px; font-size: 20px; line-height: 1.3; }
+.rocoo-admin .rocoo-gate__body p { font-size: 13px; line-height: 1.6; color: #3c434a; margin: 10px 0; }
+.rocoo-admin .rocoo-gate__ack {
+	display: block;
+	margin: 16px 0 18px;
+	font-weight: 600;
+	font-size: 14px;
+	color: #1d2327;
+}
+.rocoo-admin .rocoo-gate__ack input { margin: 0 8px 0 0; }
+.rocoo-admin .rocoo-gate__actions { margin: 0; }
+.rocoo-admin .rocoo-gate__accept[disabled] { cursor: not-allowed; opacity: .6; }
 .rocoo-admin .rocoo-reqs { list-style: disc; margin: 8px 0 16px 22px; max-width: 760px; }
 .rocoo-admin .rocoo-reqs li { margin-bottom: 6px; color: #3c434a; }
 .rocoo-admin .rocoo-callout {

@@ -4,7 +4,7 @@ Tags: cookies, consent, gdpr, ccpa, privacy, opt-out, gpc
 Requires at least: 5.6
 Tested up to: 7.0
 Requires PHP: 7.2
-Stable tag: 1.5.3
+Stable tag: 1.5.4
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -71,6 +71,19 @@ React to consent:
 Filters: `rocoo_country`, `rocoo_should_render`, `rocoo_gated_blocks`.
 
 == Changelog ==
+
+= 1.5.4 =
+* The use & liability disclaimer is now a **first-run gate**: on a fresh install the
+  settings screen shows only the disclaimer (as a modal) and blocks all configuration
+  until it is accepted. Enforced server-side, so it can't be skipped. Sites that
+  already accepted it are not asked again.
+* Setup status now runs **deployment checks** against the site's active plugins:
+  warns when another plugin injects tags outside this plugin's gate (Site Kit, GTM4WP,
+  MonsterInsights/ExactMetrics, PixelYourSite, Header Footer Code Manager, WPCode, …)
+  so the banner isn't silently decorative; flags full-page caching that can freeze the
+  US-vs-EU/GPC decision on Basic/Balanced (Maximum is cache-safe); and reminds you to
+  exclude banner.js from "delay JavaScript" optimizers (WP Rocket, LiteSpeed,
+  Perfmatters, …).
 
 = 1.5.3 =
 * New **use & liability disclaimer** at the top of Setup, with a one-time "I accept"
