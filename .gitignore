@@ -1,0 +1,22 @@
+# OS / editor cruft
+.DS_Store
+Thumbs.db
+*.swp
+*.swo
+.idea/
+.vscode/
+*.code-workspace
+
+# Build artifacts — release zips come from GitHub Releases, never committed
+*.zip
+
+# Local / dev / AI tooling — never commit (these live above the plugin folder anyway)
+.claude/
+CLAUDE.md
+specs/
+.playwright-mcp/
+*.log
+
+# Internal markdown docs — keep only the repo's own README
+*.md
+!/README.md

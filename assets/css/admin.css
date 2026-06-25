@@ -1,0 +1,245 @@
+/* Red Olive Cookie Opt-Out — admin settings. */
+
+.rocoo-admin .rocoo-tabpane[hidden] { display: none; }
+
+.rocoo-admin .rocoo-catbox {
+	background: #fff;
+	border: 1px solid #dcdcde;
+	border-radius: 6px;
+	padding: 14px 18px;
+	margin: 0 0 14px;
+	max-width: 760px;
+}
+.rocoo-admin .rocoo-catbox h3 { margin: 0 0 6px; }
+
+.rocoo-admin .rocoo-note {
+	max-width: 760px;
+	margin: 4px 0 18px;
+}
+
+.rocoo-admin label.rocoo-inline {
+	display: inline-block;
+	margin: 0 16px 10px 0;
+	font-size: 12px;
+	color: #50575e;
+}
+.rocoo-admin label.rocoo-inline input { display: block; min-width: 160px; }
+
+.rocoo-admin textarea.code { font-family: Menlo, Consolas, monospace; font-size: 12px; }
+
+.rocoo-admin .rocoo-legal {
+	margin-top: 24px;
+	max-width: 760px;
+	font-style: italic;
+}
+
+/* Compliance mode cards (Setup tab). */
+.rocoo-admin .rocoo-modes {
+	display: flex;
+	gap: 14px;
+	flex-wrap: wrap;
+	margin: 16px 0;
+}
+.rocoo-admin .rocoo-mode-card {
+	flex: 1 1 220px;
+	max-width: 340px;
+	display: block;
+	border: 2px solid #dcdcde;
+	border-radius: 10px;
+	padding: 16px 16px 16px 42px;
+	position: relative;
+	cursor: pointer;
+	background: #fff;
+	transition: border-color .15s, box-shadow .15s;
+}
+.rocoo-admin .rocoo-mode-card:hover { border-color: #a7aaad; }
+.rocoo-admin .rocoo-mode-card.is-selected {
+	border-color: #2271b1;
+	box-shadow: 0 0 0 1px #2271b1;
+}
+.rocoo-admin .rocoo-mode-card input[type=radio] { position: absolute; left: 16px; top: 18px; }
+.rocoo-admin .rocoo-mode-card__title { display: block; font-size: 15px; font-weight: 600; margin-bottom: 4px; }
+.rocoo-admin .rocoo-mode-card__tagline { display: block; font-weight: 500; color: #1d2327; margin-bottom: 8px; }
+.rocoo-admin .rocoo-mode-card__tradeoff { display: block; color: #646970; font-size: 12.5px; line-height: 1.5; }
+.rocoo-admin .rocoo-pill {
+	display: inline-block;
+	font-size: 10px;
+	font-weight: 600;
+	text-transform: uppercase;
+	letter-spacing: .04em;
+	background: #2271b1;
+	color: #fff;
+	border-radius: 9px;
+	padding: 1px 7px;
+	margin-left: 6px;
+	vertical-align: middle;
+}
+.rocoo-admin .rocoo-ack {
+	background: #fcf9e8;
+	border: 1px solid #dba617;
+	border-radius: 8px;
+	padding: 10px 14px;
+	margin: 8px 0 16px;
+	max-width: 760px;
+}
+.rocoo-admin .rocoo-reqs { list-style: disc; margin: 8px 0 16px 22px; max-width: 760px; }
+.rocoo-admin .rocoo-reqs li { margin-bottom: 6px; color: #3c434a; }
+.rocoo-admin .rocoo-callout {
+	background: #f0f6fc;
+	border: 1px solid #c5d9ed;
+	border-left: 4px solid #2271b1;
+	border-radius: 6px;
+	padding: 10px 14px;
+	margin: 14px 0;
+	max-width: 1080px;
+}
+.rocoo-admin .rocoo-callout p { margin: 0; }
+.rocoo-admin .rocoo-pros,
+.rocoo-admin .rocoo-cons { list-style: none; margin: 10px 0 0; padding: 0; }
+.rocoo-admin .rocoo-cons { margin-top: 6px; }
+.rocoo-admin .rocoo-pros li,
+.rocoo-admin .rocoo-cons li {
+	font-size: 12.5px;
+	line-height: 1.45;
+	margin: 0 0 5px;
+	padding-left: 20px;
+	position: relative;
+	color: #3c434a;
+}
+.rocoo-admin .rocoo-pros li::before { content: "\2713"; position: absolute; left: 0; color: #1a7f37; font-weight: 700; }
+.rocoo-admin .rocoo-cons li::before { content: "\2715"; position: absolute; left: 0; color: #b32d2e; font-weight: 700; }
+.rocoo-admin .rocoo-mode-card__cm {
+	display: block;
+	margin-top: 10px;
+	padding-top: 8px;
+	border-top: 1px solid #eef0f1;
+	font-size: 11.5px;
+	font-weight: 600;
+	color: #50575e;
+}
+.rocoo-admin .rocoo-setup-h { margin: 22px 0 4px; font-size: 14px; }
+.rocoo-admin .rocoo-adv-h { margin: 26px 0 6px; padding-top: 14px; border-top: 1px solid #dcdcde; }
+.rocoo-admin .rocoo-cm-note { max-width: 1080px; }
+
+/* Setup status card (the at-a-glance green-check panel). */
+.rocoo-admin .rocoo-status {
+	max-width: none;
+	border: 1px solid #dcdcde;
+	border-left: 4px solid #1a7f37;
+	border-radius: 8px;
+	background: #fff;
+	padding: 12px 16px 8px;
+	margin: 0;
+}
+.rocoo-admin .rocoo-status.is-warn { border-left-color: #dba617; }
+.rocoo-admin .rocoo-status__head {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	margin-bottom: 8px;
+}
+.rocoo-admin .rocoo-status__title { font-size: 14px; font-weight: 600; }
+.rocoo-admin .rocoo-status__badge {
+	font-size: 12px;
+	font-weight: 600;
+	border-radius: 11px;
+	padding: 2px 11px;
+	background: #edf7ed;
+	color: #1a7f37;
+	white-space: nowrap;
+}
+.rocoo-admin .rocoo-status__badge::before { content: "\2713\00a0"; }
+.rocoo-admin .rocoo-status.is-warn .rocoo-status__badge { background: #fcf3da; color: #9a6700; }
+.rocoo-admin .rocoo-status.is-warn .rocoo-status__badge::before { content: "\26A0\00a0"; }
+.rocoo-admin .rocoo-status__list { margin: 0; padding: 0; list-style: none; }
+.rocoo-admin .rocoo-status__row {
+	display: grid;
+	grid-template-columns: 18px 1fr;
+	align-items: start;
+	gap: 1px 8px;
+	padding: 7px 0;
+	border-top: 1px solid #f0f0f1;
+	font-size: 13px;
+	line-height: 1.4;
+}
+.rocoo-admin .rocoo-status__row:first-child { border-top: 0; }
+.rocoo-admin .rocoo-status__icon::before { font-weight: 700; }
+.rocoo-admin .rocoo-status__row.is-ok .rocoo-status__icon::before { content: "\2713"; color: #1a7f37; }
+.rocoo-admin .rocoo-status__row.is-warn .rocoo-status__icon::before { content: "\26A0"; color: #bd8600; }
+.rocoo-admin .rocoo-status__row.is-info .rocoo-status__icon::before { content: "\2013"; color: #787c82; }
+.rocoo-admin .rocoo-status__label { grid-column: 2; color: #1d2327; font-weight: 600; }
+.rocoo-admin .rocoo-status__value { grid-column: 2; color: #50575e; font-size: 12px; }
+.rocoo-admin .rocoo-status__row.is-warn .rocoo-status__value { color: #8a6100; }
+
+/* Setup two-column layout: steps on the left, sticky status panel on the right. */
+.rocoo-admin .rocoo-setup-layout { display: flex; gap: 22px; align-items: flex-start; }
+.rocoo-admin .rocoo-setup-main { flex: 1 1 auto; min-width: 0; }
+.rocoo-admin .rocoo-setup-side { flex: 0 0 300px; position: sticky; top: 40px; }
+.rocoo-admin .rocoo-setup-side .rocoo-status__head { flex-wrap: wrap; gap: 4px; }
+@media screen and (max-width: 1180px) {
+	.rocoo-admin .rocoo-setup-layout { flex-direction: column; }
+	.rocoo-admin .rocoo-setup-side { position: static; flex: 1 1 auto; align-self: stretch; max-width: 880px; }
+}
+
+/* Advanced disclosure inside the Setup tab. */
+.rocoo-admin .rocoo-adv-setup {
+	max-width: 760px;
+	margin: 14px 0 6px;
+	border: 1px solid #dcdcde;
+	border-radius: 6px;
+	background: #fbfbfc;
+	padding: 0 14px;
+}
+.rocoo-admin .rocoo-adv-setup > summary {
+	cursor: pointer;
+	padding: 11px 0;
+	font-weight: 600;
+	color: #2271b1;
+}
+.rocoo-admin .rocoo-adv-setup[open] { padding-bottom: 12px; }
+.rocoo-admin .rocoo-adv-setup[open] > summary { border-bottom: 1px solid #eef0f1; margin-bottom: 10px; }
+
+/* Admin header: square Red Olive logo + title. */
+.rocoo-admin .rocoo-admin__title { display: flex; align-items: center; gap: 10px; }
+.rocoo-admin .rocoo-admin__logo { width: 34px; height: 34px; display: block; flex: 0 0 auto; }
+
+/* Setup section cards — clear visual division per step. */
+.rocoo-admin .rocoo-card {
+	max-width: 880px;
+	background: #fff;
+	border: 1px solid #dcdcde;
+	border-radius: 10px;
+	margin: 0 0 18px;
+	box-shadow: 0 1px 2px rgba(0,0,0,.04);
+}
+.rocoo-admin .rocoo-card__head {
+	display: flex;
+	align-items: center;
+	gap: 10px;
+	padding: 13px 18px;
+	border-bottom: 1px solid #e8e8eb;
+	background: #fbfbfc;
+	border-radius: 10px 10px 0 0;
+}
+.rocoo-admin .rocoo-card__num {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	width: 24px;
+	height: 24px;
+	border-radius: 50%;
+	background: #2271b1;
+	color: #fff;
+	font-weight: 700;
+	font-size: 13px;
+	flex: 0 0 auto;
+}
+.rocoo-admin .rocoo-card__title { font-size: 15px; font-weight: 600; color: #1d2327; }
+.rocoo-admin .rocoo-card__body { padding: 14px 18px 16px; }
+.rocoo-admin .rocoo-card__body > *:first-child { margin-top: 0; }
+.rocoo-admin .rocoo-card__body .form-table { margin-top: 0; }
+.rocoo-admin .rocoo-card--advanced .rocoo-card__head { background: #f6f7f7; }
+.rocoo-admin .rocoo-card--advanced .rocoo-card__title { font-size: 14px; color: #50575e; }
+
+/* Record count in the Records tab. */
+.rocoo-admin .rocoo-tab-count { opacity: .6; font-weight: 400; }

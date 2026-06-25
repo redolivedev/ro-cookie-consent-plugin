@@ -1,0 +1,256 @@
+/* Red Olive Cookie Opt-Out — front-end banner. */
+
+.rocoo,
+.rocoo * {
+	box-sizing: border-box;
+}
+
+.rocoo {
+	position: fixed;
+	left: 0;
+	right: 0;
+	z-index: 2147483600;
+	font-family: 'Archivo', system-ui, -apple-system, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+	color: var(--rocoo-text, #fff);
+}
+
+.rocoo--bottom { bottom: 0; }
+.rocoo--top { top: 0; }
+
+.rocoo[hidden] { display: none; }
+
+/* ---- Bar ---- */
+.rocoo-bar {
+	background: var(--rocoo-bg, #131314);
+	-webkit-backdrop-filter: blur(var(--rocoo-blur, 0));
+	backdrop-filter: blur(var(--rocoo-blur, 0));
+	border-top: 2px solid var(--rocoo-accent, #ed1c24);
+	box-shadow: 0 -8px 30px rgba(0, 0, 0, .28);
+	padding: 16px clamp(16px, 4vw, 40px);
+	display: flex;
+	align-items: center;
+	gap: 18px;
+	flex-wrap: wrap;
+}
+
+/* Defensive text colors so a host theme can't dim the banner copy. */
+.rocoo .rocoo-bar__h,
+.rocoo .rocoo-bar__p,
+.rocoo .rocoo-cat__head,
+.rocoo .rocoo-cat__name {
+	color: var(--rocoo-text, #fff) !important;
+}
+.rocoo--top .rocoo-bar {
+	border-top: 0;
+	border-bottom: 2px solid var(--rocoo-accent, #ed1c24);
+	box-shadow: 0 8px 30px rgba(0, 0, 0, .28);
+}
+
+.rocoo-bar__text { flex: 1 1 320px; min-width: 220px; }
+
+.rocoo-bar__h {
+	margin: 0 0 4px;
+	font-size: 15px;
+	font-weight: 800;
+	line-height: 1.2;
+	color: var(--rocoo-text, #fff);
+}
+
+.rocoo-bar__p {
+	margin: 0;
+	font-size: 13px;
+	line-height: 1.5;
+	color: var(--rocoo-text, #fff);
+	opacity: .82;
+}
+
+.rocoo-bar__p a,
+.rocoo-privacy {
+	color: var(--rocoo-text, #fff);
+	text-decoration: underline;
+}
+
+.rocoo-bar__actions {
+	display: flex;
+	align-items: center;
+	gap: 10px;
+	flex-wrap: wrap;
+}
+
+/* ---- Compact bar: a slim, single-row variant about the height of a button.
+   Hides the large heading and keeps the notice on one line beside the buttons. */
+.rocoo--compact .rocoo-bar {
+	padding-top: 9px;
+	padding-bottom: 9px;
+	gap: 10px 18px;
+	flex-wrap: nowrap;
+}
+.rocoo--compact .rocoo-bar__h { display: none; }
+.rocoo--compact .rocoo-bar__text { min-width: 0; }
+.rocoo--compact .rocoo-bar__p {
+	white-space: nowrap;
+	overflow: hidden;
+	text-overflow: ellipsis;
+}
+/* On narrow screens let it breathe: wrap and drop the one-line clamp. */
+@media (max-width: 600px) {
+	.rocoo--compact .rocoo-bar { flex-wrap: wrap; }
+	.rocoo--compact .rocoo-bar__p { white-space: normal; }
+}
+
+/* ---- Buttons ---- */
+.rocoo-btn {
+	appearance: none;
+	border: 0;
+	border-radius: 8px;
+	padding: 11px 18px;
+	font: inherit;
+	font-size: 13px;
+	font-weight: 700;
+	cursor: pointer;
+	line-height: 1;
+	transition: transform .12s ease, filter .12s ease, background .12s ease;
+}
+.rocoo-btn:hover { transform: translateY(-1px); }
+.rocoo-btn:focus-visible { outline: 2px solid var(--rocoo-accent, #ed1c24); outline-offset: 2px; }
+
+.rocoo-btn--primary {
+	background: var(--rocoo-accent, #ed1c24);
+	color: #fff;
+}
+.rocoo-btn--primary:hover { filter: brightness(1.08); }
+
+.rocoo-btn--ghost {
+	background: transparent;
+	color: var(--rocoo-text, #fff);
+	border: 1px solid rgba(255, 255, 255, .28);
+}
+.rocoo-btn--ghost:hover { border-color: rgba(255, 255, 255, .55); }
+
+.rocoo-link {
+	appearance: none;
+	background: none;
+	border: 0;
+	padding: 8px 6px;
+	font: inherit;
+	font-size: 12px;
+	color: var(--rocoo-text, #fff);
+	opacity: .75;
+	text-decoration: underline;
+	cursor: pointer;
+}
+.rocoo-link:hover { opacity: 1; }
+.rocoo-link:focus-visible { outline: 2px solid var(--rocoo-accent, #ed1c24); outline-offset: 2px; }
+
+/* ---- Customize panel ---- */
+.rocoo-panel {
+	background: var(--rocoo-bg, #131314);
+	-webkit-backdrop-filter: blur(var(--rocoo-blur, 0));
+	backdrop-filter: blur(var(--rocoo-blur, 0));
+	border-top: 1px solid rgba(255, 255, 255, .1);
+	padding: 18px clamp(16px, 4vw, 40px) 22px;
+	max-height: 52vh;
+	overflow-y: auto;
+}
+.rocoo-panel[hidden] { display: none; }
+
+.rocoo-panel__cats {
+	display: grid;
+	grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+	gap: 14px 28px;
+	margin-bottom: 18px;
+}
+
+.rocoo-cat__head {
+	display: flex;
+	align-items: center;
+	gap: 10px;
+	cursor: pointer;
+	font-size: 14px;
+	font-weight: 700;
+}
+.rocoo-cat__name {
+	font-size: 15px;
+	font-weight: 800;
+	letter-spacing: .005em;
+}
+/* The category names are the headings inside Customize. Force them to the full
+   text color at full opacity, with enough specificity that a host theme can't
+   dim them to a low-contrast charcoal against the dark panel. */
+.rocoo .rocoo-panel .rocoo-cat__head .rocoo-cat__name {
+	color: var(--rocoo-text, #fff) !important;
+	opacity: 1 !important;
+}
+.rocoo-cat__name em { font-weight: 400; opacity: .6; font-style: normal; font-size: 12px; }
+
+.rocoo-cat__desc {
+	margin: 4px 0 0 50px;
+	font-size: 12px;
+	line-height: 1.5;
+	color: var(--rocoo-text, #fff) !important;
+	opacity: .82;
+}
+
+/* Toggle switch built from the checkbox */
+.rocoo-cat__head input { position: absolute; opacity: 0; width: 0; height: 0; }
+.rocoo-switch {
+	flex: 0 0 auto;
+	position: relative;
+	width: 40px;
+	height: 22px;
+	border-radius: 22px;
+	background: rgba(255, 255, 255, .22);
+	transition: background .15s ease;
+}
+.rocoo-switch::after {
+	content: "";
+	position: absolute;
+	top: 2px;
+	left: 2px;
+	width: 18px;
+	height: 18px;
+	border-radius: 50%;
+	background: #fff;
+	transition: transform .15s ease;
+}
+.rocoo-cat__head input:checked + .rocoo-switch { background: var(--rocoo-accent, #ed1c24); }
+.rocoo-cat__head input:checked + .rocoo-switch::after { transform: translateX(18px); }
+.rocoo-cat__head input:disabled + .rocoo-switch { opacity: .6; }
+.rocoo-cat__head input:focus-visible + .rocoo-switch { outline: 2px solid var(--rocoo-accent, #ed1c24); outline-offset: 2px; }
+
+.rocoo-panel__foot {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	gap: 14px;
+	flex-wrap: wrap;
+	border-top: 1px solid rgba(255, 255, 255, .1);
+	padding-top: 16px;
+}
+.rocoo-panel__foot-actions { display: flex; gap: 10px; margin-left: auto; }
+.rocoo-dns { opacity: .9; }
+
+/* Re-open trigger (shortcode button / .rocoo-open link in a footer or menu).
+   Inherits the surrounding text style so it blends into the host theme. */
+.rocoo-open {
+	appearance: none;
+	background: none;
+	border: 0;
+	padding: 0;
+	margin: 0;
+	font: inherit;
+	color: inherit;
+	cursor: pointer;
+	text-decoration: underline;
+}
+
+@media (max-width: 600px) {
+	.rocoo-bar { gap: 12px; }
+	.rocoo-bar__actions { width: 100%; }
+	.rocoo-bar__actions .rocoo-btn { flex: 1; text-align: center; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+	.rocoo-btn, .rocoo-switch, .rocoo-switch::after { transition: none; }
+	.rocoo-btn:hover { transform: none; }
+}
