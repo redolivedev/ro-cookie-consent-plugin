@@ -85,16 +85,16 @@ class Admin {
 		$clean = Settings::sanitize( is_array( $raw ) ? $raw : array(), $current );
 		update_option( ROCOO_OPTION, $clean );
 
-		// Record a dated liability acknowledgment when a tier below High Compliance
-		// is chosen, so there is a record the site owner accepted the added risk.
-		if ( Modes::DEFAULT_MODE !== $clean['compliance_mode'] && ! empty( $raw['mode_ack'] ) ) {
+		// Record a one-time, dated acceptance of the use & liability disclaimer
+		// (who / when / which plugin version) so there is proof the owner accepted it.
+		if ( ! empty( $raw['terms_ack'] ) && ! get_option( 'rocoo_terms_ack' ) ) {
 			$user = wp_get_current_user();
 			update_option(
-				'rocoo_mode_ack',
+				'rocoo_terms_ack',
 				array(
-					'mode' => $clean['compliance_mode'],
-					'user' => $user ? $user->user_login : '',
-					'ts'   => time(),
+					'user'    => $user ? $user->user_login : '',
+					'ts'      => time(),
+					'version' => ROCOO_VERSION,
 				),
 				false
 			);
@@ -201,6 +201,23 @@ class Admin {
 			'value' => $meta[ $mode ]['label'],
 		);
 
+		// Use & liability disclaimer acceptance.
+		$rocoo_terms = get_option( 'rocoo_terms_ack' );
+		if ( is_array( $rocoo_terms ) && ! empty( $rocoo_terms['ts'] ) ) {
+			$rows[] = array(
+				'state' => 'ok',
+				'label' => __( 'Disclaimer', 'red-olive-cookie-opt-out' ),
+				/* translators: 1: admin username, 2: date. */
+				'value' => sprintf( __( 'Accepted by %1$s on %2$s', 'red-olive-cookie-opt-out' ), $rocoo_terms['user'] ? $rocoo_terms['user'] : __( 'an administrator', 'red-olive-cookie-opt-out' ), gmdate( 'M j, Y', (int) $rocoo_terms['ts'] ) ),
+			);
+		} else {
+			$rows[] = array(
+				'state' => 'warn',
+				'label' => __( 'Disclaimer', 'red-olive-cookie-opt-out' ),
+				'value' => __( 'Not yet accepted — review and accept it at the top of Setup', 'red-olive-cookie-opt-out' ),
+			);
+		}
+
 		// Google Consent Mode.
 		$rows[] = $is_cm
 			? array( 'state' => 'ok', 'label' => __( 'Google Consent Mode', 'red-olive-cookie-opt-out' ), 'value' => __( 'On — models the visitors who decline', 'red-olive-cookie-opt-out' ) )
@@ -305,6 +322,24 @@ class Admin {
 	}
 
 	/**
+	 * The full use & liability disclaimer text, as escaped HTML paragraphs.
+	 *
+	 * @return string
+	 */
+	private function disclaimer_html() {
+		$paras = array(
+			__( 'This plugin is provided "as is," without warranty of any kind, and you use it at your own risk. Red Olive accepts no responsibility for any loss, downtime, or website issues — including conflicts or incompatibilities with your theme, other plugins, hosting, or third-party scripts — arising from its installation, configuration, or use.', 'red-olive-cookie-opt-out' ),
+			__( 'It provides a cookie-consent mechanism only. It is not legal advice and does not guarantee compliance with the GDPR, CCPA/CPRA, or any other privacy law. You remain solely responsible for your site\'s legal compliance — including accurate consent categories, a current and accurate privacy policy, honoring opt-out requests, and confirming the setup meets the laws that apply to your visitors.', 'red-olive-cookie-opt-out' ),
+			__( 'By enabling and configuring this plugin, you accept these terms.', 'red-olive-cookie-opt-out' ),
+		);
+		$html = '';
+		foreach ( $paras as $p ) {
+			$html .= '<p>' . esc_html( $p ) . '</p>';
+		}
+		return $html;
+	}
+
+	/**
 	 * Render the settings page.
 	 */
 	public function render() {
@@ -348,6 +383,21 @@ class Admin {
 					<div class="rocoo-setup-layout">
 					<div class="rocoo-setup-main">
 
+					<?php $rocoo_terms = get_option( 'rocoo_terms_ack' ); $rocoo_accepted = ( is_array( $rocoo_terms ) && ! empty( $rocoo_terms['ts'] ) ); ?>
+					<div class="rocoo-disclaimer <?php echo $rocoo_accepted ? 'is-accepted' : 'is-pending'; ?>">
+						<?php if ( $rocoo_accepted ) : ?>
+							<span class="rocoo-disclaimer__ok"><?php
+								/* translators: 1: admin username, 2: date. */
+								printf( esc_html__( '✓ Disclaimer accepted by %1$s on %2$s.', 'red-olive-cookie-opt-out' ), esc_html( $rocoo_terms['user'] ? $rocoo_terms['user'] : __( 'an administrator', 'red-olive-cookie-opt-out' ) ), esc_html( gmdate( 'M j, Y', (int) $rocoo_terms['ts'] ) ) );
+							?></span>
+							<details class="rocoo-disclaimer__more"><summary><?php esc_html_e( 'View', 'red-olive-cookie-opt-out' ); ?></summary><?php echo wp_kses_post( $this->disclaimer_html() ); ?></details>
+						<?php else : ?>
+							<p class="rocoo-disclaimer__lead"><strong><?php esc_html_e( 'Before you go live — please read.', 'red-olive-cookie-opt-out' ); ?></strong></p>
+							<details class="rocoo-disclaimer__more" open><summary><?php esc_html_e( 'Use & liability disclaimer', 'red-olive-cookie-opt-out' ); ?></summary><?php echo wp_kses_post( $this->disclaimer_html() ); ?></details>
+							<label class="rocoo-disclaimer__ack"><input type="checkbox" name="rocoo[terms_ack]" value="1" /> <?php esc_html_e( 'I have read and accept this disclaimer.', 'red-olive-cookie-opt-out' ); ?></label>
+						<?php endif; ?>
+					</div>
+
 					<?php
 					$rocoo_modes   = Modes::meta();
 					$rocoo_current = Modes::current( $s );
@@ -371,10 +421,6 @@ class Admin {
 								<span class="rocoo-mode-card__cm"><?php echo 'advanced' === Modes::preset( $mk )['consent_mode'] ? esc_html__( 'Google Consent Mode: On — Google models the visitors who decline', 'red-olive-cookie-opt-out' ) : esc_html__( 'Google Consent Mode: Off — tags fire normally, nothing to model', 'red-olive-cookie-opt-out' ); ?></span>
 							</label>
 						<?php endforeach; ?>
-					</div>
-
-					<div class="rocoo-ack" data-rocoo-ack <?php echo ( 'high_compliance' === $rocoo_current ) ? 'hidden' : ''; ?>>
-						<label><input type="checkbox" name="rocoo[mode_ack]" value="1" /> <?php esc_html_e( 'I understand this level offers less protection so I can keep more tracking data, and I accept that compliance risk for this site.', 'red-olive-cookie-opt-out' ); ?></label>
 					</div>
 					</div></div>
 

@@ -4,7 +4,7 @@ Tags: cookies, consent, gdpr, ccpa, privacy, opt-out, gpc
 Requires at least: 5.6
 Tested up to: 7.0
 Requires PHP: 7.2
-Stable tag: 1.5.2
+Stable tag: 1.5.3
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -71,6 +71,12 @@ React to consent:
 Filters: `rocoo_country`, `rocoo_should_render`, `rocoo_gated_blocks`.
 
 == Changelog ==
+
+= 1.5.3 =
+* New **use & liability disclaimer** at the top of Setup, with a one-time "I accept"
+  acknowledgment that records who accepted, when, and on which version. Once accepted it
+  collapses to a dated line, and the Setup status panel shows whether it's been accepted.
+  Replaces the narrower per-tier risk checkbox.
 
 = 1.5.2 =
 * Setup tab: the three protection levels now stay side by side (3-column grid) instead

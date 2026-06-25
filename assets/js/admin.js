@@ -40,13 +40,11 @@
 			activate(hash);
 		}
 
-		// Compliance mode cards: reflect selection + toggle the acknowledgment box.
+		// Compliance mode cards: reflect the selected card.
 		var $cards = $('.rocoo-mode-card');
-		var $ack = $('[data-rocoo-ack]');
 		$('.rocoo-modes').on('change', 'input[type=radio]', function () {
 			$cards.removeClass('is-selected');
 			$(this).closest('.rocoo-mode-card').addClass('is-selected');
-			$ack.prop('hidden', $(this).val() === 'high_compliance');
 		});
 
 		// Coexist with WAFs (e.g. Wordfence) that return a 403 when they see a raw

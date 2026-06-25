@@ -84,6 +84,22 @@
 	margin: 8px 0 16px;
 	max-width: 760px;
 }
+
+/* Use & liability disclaimer (top of Setup). */
+.rocoo-admin .rocoo-disclaimer {
+	max-width: 880px;
+	border-radius: 8px;
+	padding: 12px 16px;
+	margin: 0 0 18px;
+}
+.rocoo-admin .rocoo-disclaimer.is-pending { background: #fcf9e8; border: 1px solid #dba617; }
+.rocoo-admin .rocoo-disclaimer.is-accepted { background: #f2f8ee; border: 1px solid #b5cfa0; font-size: 13px; padding: 9px 14px; }
+.rocoo-admin .rocoo-disclaimer__lead { margin: 0 0 6px; }
+.rocoo-admin .rocoo-disclaimer__more { margin: 6px 0; }
+.rocoo-admin .rocoo-disclaimer__more > summary { cursor: pointer; color: #2271b1; font-weight: 600; }
+.rocoo-admin .rocoo-disclaimer__more p { margin: 8px 0; font-size: 12.5px; line-height: 1.55; color: #50575e; }
+.rocoo-admin .rocoo-disclaimer__ack { display: block; margin-top: 8px; font-weight: 600; }
+.rocoo-admin .rocoo-disclaimer__ok { font-weight: 600; color: #1a7f37; }
 .rocoo-admin .rocoo-reqs { list-style: disc; margin: 8px 0 16px 22px; max-width: 760px; }
 .rocoo-admin .rocoo-reqs li { margin-bottom: 6px; color: #3c434a; }
 .rocoo-admin .rocoo-callout {
