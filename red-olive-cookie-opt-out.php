@@ -3,7 +3,7 @@
  * Plugin Name:       Red Olive Cookie Opt-Out
  * Plugin URI:        https://redolive.com/
  * Description:        A handsome, on-brand cookie-consent bar with real script gating. Geo-aware: opt-in for EU/UK visitors, opt-out for US visitors (honors Global Privacy Control). Reusable across client sites with a settings page and an owner-selectable accent color.
- * Version:           1.5.0
+ * Version:           1.5.1
  * Requires at least: 5.6
  * Requires PHP:      7.2
  * Author:            Red Olive
@@ -22,7 +22,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit; // No direct access.
 }
 
-define( 'ROCOO_VERSION', '1.5.0' );
+define( 'ROCOO_VERSION', '1.5.1' );
 define( 'ROCOO_FILE', __FILE__ );
 define( 'ROCOO_DIR', plugin_dir_path( __FILE__ ) );
 define( 'ROCOO_URL', plugin_dir_url( __FILE__ ) );

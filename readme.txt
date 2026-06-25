@@ -2,9 +2,9 @@
 Contributors: redolive
 Tags: cookies, consent, gdpr, ccpa, privacy, opt-out, gpc
 Requires at least: 5.6
-Tested up to: 6.5
+Tested up to: 7.0
 Requires PHP: 7.2
-Stable tag: 1.5.0
+Stable tag: 1.5.1
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -71,6 +71,10 @@ React to consent:
 Filters: `rocoo_country`, `rocoo_should_render`, `rocoo_gated_blocks`.
 
 == Changelog ==
+
+= 1.5.1 =
+* Maintenance: confirmed compatibility with WordPress 7.0 ("Tested up to" bump). This
+  is also the first update delivered through the GitHub auto-update pipeline.
 
 = 1.5.0 =
 * Self-hosted **automatic updates**. The plugin now checks its GitHub repository for
