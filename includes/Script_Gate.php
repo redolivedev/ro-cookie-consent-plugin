@@ -42,6 +42,37 @@ class Script_Gate {
 	}
 
 	/**
+	 * Echo trackers the owner has explicitly marked "essential" — printed UNGATED
+	 * (no inert template) so they run before consent. Use sparingly: only for
+	 * first-party, functional tooling the site genuinely depends on (e.g.
+	 * WhatConverts lead/call tracking feeding a CRM), and disclose it in the
+	 * privacy policy. Everything else stays gated via render().
+	 *
+	 * @param array $settings Settings.
+	 */
+	public static function render_essential( $settings ) {
+		$markup = '';
+
+		if ( ! empty( $settings['wc_essential'] ) && ! empty( $settings['wc_enabled'] ) && ! empty( $settings['wc_profile_id'] ) ) {
+			$markup .= self::whatconverts( $settings['wc_profile_id'] );
+		}
+
+		/**
+		 * Filter the ungated "essential" markup before it is printed.
+		 *
+		 * @param string $markup   Raw script markup.
+		 * @param array  $settings Settings.
+		 */
+		$markup = apply_filters( 'rocoo_essential_markup', $markup, $settings );
+
+		if ( '' !== trim( $markup ) ) {
+			// Intentionally not escaped: admin-authored script markup (same as the
+			// gated blocks), printed directly with no inert template so it executes.
+			echo $markup; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+		}
+	}
+
+	/**
 	 * Build the per-category markup, combining presets with the owner's blobs.
 	 *
 	 * @param array $settings Settings.
@@ -75,7 +106,9 @@ class Script_Gate {
 
 		// WhatConverts -> gated under its chosen category. Replaces the standalone
 		// WhatConverts plugin, which enqueues the same script ungated (pre-consent).
-		if ( ! empty( $settings['wc_enabled'] ) && ! empty( $settings['wc_profile_id'] ) ) {
+		// When marked "essential" it is loaded ungated by Frontend (render_essential)
+		// instead, so skip the gated copy here to avoid a double-load.
+		if ( ! empty( $settings['wc_enabled'] ) && ! empty( $settings['wc_profile_id'] ) && empty( $settings['wc_essential'] ) ) {
 			$wc_cat = in_array( $settings['wc_cat'] ?? 'marketing', array( 'analytics', 'marketing' ), true ) ? $settings['wc_cat'] : 'marketing';
 			$out[ $wc_cat ] .= self::whatconverts( $settings['wc_profile_id'] );
 		}

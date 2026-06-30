@@ -296,6 +296,8 @@ class Admin {
 			$rows[] = array( 'state' => 'warn', 'label' => 'WhatConverts', 'value' => __( 'Loading twice — this plugin now gates it, so deactivate the standalone WhatConverts plugin.', 'red-olive-cookie-opt-out' ) );
 		} elseif ( $wc_native ) {
 			$rows[] = array( 'state' => 'warn', 'label' => 'WhatConverts', 'value' => __( 'Active but ungated — it fires before consent. Add its Profile ID below, enable it, then deactivate the standalone WhatConverts plugin.', 'red-olive-cookie-opt-out' ) );
+		} elseif ( $wc_gated && ! empty( $s['wc_essential'] ) ) {
+			$rows[] = array( 'state' => 'warn', 'label' => 'WhatConverts', 'value' => __( 'Loads BEFORE consent (essential) — wc_* cookies are set for every visitor. Intended for a CRM/lead-tracking dependency; make sure your privacy policy discloses it.', 'red-olive-cookie-opt-out' ) );
 		} elseif ( $wc_gated ) {
 			$rows[] = array( 'state' => 'ok', 'label' => 'WhatConverts', 'value' => __( 'Gated by this plugin', 'red-olive-cookie-opt-out' ) );
 		}
@@ -627,6 +629,7 @@ class Admin {
 							<td>
 								<input type="text" id="rocoo-wc" class="regular-text" name="rocoo[wc_profile_id]" value="<?php echo esc_attr( $s['wc_profile_id'] ); ?>" placeholder="102281" />
 								<p><label><input type="checkbox" name="rocoo[wc_enabled]" value="1" <?php checked( ! empty( $s['wc_enabled'] ), true ); ?> /> <?php esc_html_e( 'Load WhatConverts through this plugin, gated by consent. Turn this on, then deactivate the standalone "WhatConverts" plugin so it does not load twice or fire before consent.', 'red-olive-cookie-opt-out' ); ?></label></p>
+								<p><label><input type="checkbox" name="rocoo[wc_essential]" value="1" <?php checked( ! empty( $s['wc_essential'] ), true ); ?> /> <strong><?php esc_html_e( 'Load before consent (essential).', 'red-olive-cookie-opt-out' ); ?></strong> <?php esc_html_e( 'WhatConverts runs ungated for every visitor, so its first-party wc_* cookies are set immediately — use this when a CRM/HubSpot routine depends on them. Everything else (Meta, Google Ads, GA4, GTM) stays gated. Only enable for first-party lead/call tracking you treat as functional, and disclose it in your privacy policy.', 'red-olive-cookie-opt-out' ); ?></label></p>
 								<p class="description"><?php esc_html_e( 'The standalone WhatConverts plugin only injects this one tracking script, ungated. This replaces it and gates it. (Profile ID: WhatConverts › your profile › Tracking › Tracking Code.)', 'red-olive-cookie-opt-out' ); ?></p>
 							</td>
 						</tr>

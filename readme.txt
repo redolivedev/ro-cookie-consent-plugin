@@ -4,7 +4,7 @@ Tags: cookies, consent, gdpr, ccpa, privacy, opt-out, gpc
 Requires at least: 5.6
 Tested up to: 7.0
 Requires PHP: 7.2
-Stable tag: 1.5.4
+Stable tag: 1.5.5
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -71,6 +71,13 @@ React to consent:
 Filters: `rocoo_country`, `rocoo_should_render`, `rocoo_gated_blocks`.
 
 == Changelog ==
+
+= 1.5.5 =
+* New **WhatConverts "Load before consent (essential)"** option. When enabled, WhatConverts
+  loads ungated for every visitor so its first-party `wc_*` cookies are set immediately —
+  for sites with a CRM/HubSpot routine that depends on those cookies. Everything else (Meta,
+  Google Ads, GA4, GTM, custom scripts) stays fully gated. The Setup status panel flags that
+  WhatConverts now fires before consent so you remember to disclose it in your privacy policy.
 
 = 1.5.4 =
 * The use & liability disclaimer is now a **first-run gate**: on a fresh install the

@@ -176,6 +176,9 @@ class Frontend {
 		// Inert, consent-gated script templates.
 		Script_Gate::render( $settings );
 
+		// Trackers the owner explicitly marked "essential" load ungated (before consent).
+		Script_Gate::render_essential( $settings );
+
 		$mode     = Geo::mode( $settings );
 		$pos      = 'top' === $settings['position'] ? 'rocoo--top' : 'rocoo--bottom';
 		$layout   = 'compact' === $settings['layout'] ? ' rocoo--compact' : '';

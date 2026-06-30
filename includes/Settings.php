@@ -106,6 +106,7 @@ class Settings {
 			'wc_enabled'      => 0,
 			'wc_profile_id'   => '', // WhatConverts Profile ID (digits).
 			'wc_cat'          => 'marketing', // Category WhatConverts is gated under (analytics | marketing).
+			'wc_essential'    => 0, // When 1, WhatConverts loads UNGATED (before consent) so wc_* cookies set for every visitor — for a functional/CRM dependency. Must be disclosed in the privacy policy.
 		);
 	}
 
@@ -277,6 +278,7 @@ class Settings {
 		$out['wc_profile_id'] = preg_replace( '/[^0-9]/', '', $in['wc_profile_id'] ?? '' );
 		$wc_cat               = $in['wc_cat'] ?? 'marketing';
 		$out['wc_cat']        = in_array( $wc_cat, array( 'analytics', 'marketing' ), true ) ? $wc_cat : 'marketing';
+		$out['wc_essential']  = empty( $in['wc_essential'] ) ? 0 : 1;
 
 		// Bump the consent version whenever the set of enabled categories changes,
 		// so returning visitors are re-prompted.
