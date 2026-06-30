@@ -696,12 +696,6 @@ class Admin {
 							<option value="analytics" <?php selected( $s['gtm_cat'], 'analytics' ); ?>><?php esc_html_e( 'Analytics (only if the container has no ad/marketing tags)', 'red-olive-cookie-opt-out' ); ?></option>
 						</select>
 					</label></p>
-					<p><label><?php esc_html_e( 'Gate WhatConverts under:', 'red-olive-cookie-opt-out' ); ?>
-						<select name="rocoo[wc_cat]">
-							<option value="marketing" <?php selected( $s['wc_cat'], 'marketing' ); ?>><?php esc_html_e( 'Marketing (recommended — lead/ad attribution, captures PII)', 'red-olive-cookie-opt-out' ); ?></option>
-							<option value="analytics" <?php selected( $s['wc_cat'], 'analytics' ); ?>><?php esc_html_e( 'Analytics (treat as first-party measurement)', 'red-olive-cookie-opt-out' ); ?></option>
-						</select>
-					</label></p>
 
 					</div></div>
 
@@ -719,8 +713,8 @@ class Admin {
 						<tr>
 							<th scope="row"><?php esc_html_e( 'Geo-aware mode', 'red-olive-cookie-opt-out' ); ?></th>
 							<td>
-								<label><input type="checkbox" name="rocoo[geo_enabled]" value="1" <?php checked( $s['geo_enabled'], 1 ); ?> /> <?php esc_html_e( 'Opt-in for EU/UK visitors, opt-out for US visitors (recommended).', 'red-olive-cookie-opt-out' ); ?></label>
-								<p class="description"><?php esc_html_e( 'Uses your CDN/host country header. Unknown country is treated as opt-in (strict).', 'red-olive-cookie-opt-out' ); ?></p>
+								<label><input type="checkbox" name="rocoo[geo_enabled]" value="1" <?php checked( $s['geo_enabled'], 1 ); ?> /> <?php esc_html_e( 'Opt-in for EU/UK visitors, opt-out for US visitors.', 'red-olive-cookie-opt-out' ); ?></label>
+								<p class="description"><?php esc_html_e( 'Requires a host or CDN that sends a visitor country header (e.g. Cloudflare). Most sites do not have this — without it, every visitor (including US) is treated as opt-in, identical to Maximum Protection, so this setting has no effect. Add Cloudflare (free) if you need real US opt-out.', 'red-olive-cookie-opt-out' ); ?></p>
 							</td>
 						</tr>
 						<tr>

@@ -4,7 +4,7 @@ Tags: cookies, consent, gdpr, ccpa, privacy, opt-out, gpc
 Requires at least: 5.6
 Tested up to: 7.0
 Requires PHP: 7.2
-Stable tag: 1.5.7
+Stable tag: 1.5.8
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -71,6 +71,16 @@ React to consent:
 Filters: `rocoo_country`, `rocoo_should_render`, `rocoo_gated_blocks`.
 
 == Changelog ==
+
+= 1.5.8 =
+* Removed the redundant "Gate WhatConverts under:" dropdown. WhatConverts is lead/call
+  attribution that captures PII, so it is now always gated under **Marketing** (the correct
+  category) — one fewer confusing option, and the choice no longer conflicts with the new
+  "Load before consent (essential)" toggle.
+* Clarified the "Geo-aware mode" setting: it only does anything when your host or CDN sends
+  a visitor country header (e.g. Cloudflare). Most sites don't have one, where it's a no-op
+  and every visitor is treated as opt-in — so the misleading "(recommended)" label is gone
+  and the description now says so plainly.
 
 = 1.5.7 =
 * Setup polish: the "Setup status" panel is now a collapsible accordion (the status badge

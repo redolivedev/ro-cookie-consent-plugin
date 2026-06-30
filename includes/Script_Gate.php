@@ -104,13 +104,13 @@ class Script_Gate {
 			$out[ $gtm_cat ] .= self::gtm( $settings['gtm_id'] );
 		}
 
-		// WhatConverts -> gated under its chosen category. Replaces the standalone
+		// WhatConverts -> gated under Marketing (it is lead/call attribution that
+		// captures PII, so Marketing is the correct category). Replaces the standalone
 		// WhatConverts plugin, which enqueues the same script ungated (pre-consent).
 		// When marked "essential" it is loaded ungated by Frontend (render_essential)
 		// instead, so skip the gated copy here to avoid a double-load.
 		if ( ! empty( $settings['wc_enabled'] ) && ! empty( $settings['wc_profile_id'] ) && empty( $settings['wc_essential'] ) ) {
-			$wc_cat = in_array( $settings['wc_cat'] ?? 'marketing', array( 'analytics', 'marketing' ), true ) ? $settings['wc_cat'] : 'marketing';
-			$out[ $wc_cat ] .= self::whatconverts( $settings['wc_profile_id'] );
+			$out['marketing'] .= self::whatconverts( $settings['wc_profile_id'] );
 		}
 
 		// Owner-pasted blobs.
