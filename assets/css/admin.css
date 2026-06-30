@@ -304,3 +304,17 @@
 
 /* Record count in the Records tab. */
 .rocoo-admin .rocoo-tab-count { opacity: .6; font-weight: 400; }
+
+/* WhatConverts settings — branded, bordered box. */
+.rocoo-admin .rocoo-wc-cell { padding: 10px 0 4px; }
+.rocoo-admin .rocoo-wc-box {
+	max-width: 620px;
+	border: 1px solid #c9d6ef;
+	border-left: 4px solid #3062d3;
+	border-radius: 8px;
+	background: #fbfcff;
+	padding: 14px 18px 6px;
+}
+.rocoo-admin .rocoo-wc-box__logo { display: block; width: 150px; height: auto; margin: 0 0 12px; }
+.rocoo-admin .rocoo-wc-box__field { margin-top: 0; }
+.rocoo-admin .rocoo-wc-box p { max-width: 560px; }

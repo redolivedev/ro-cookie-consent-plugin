@@ -4,7 +4,7 @@ Tags: cookies, consent, gdpr, ccpa, privacy, opt-out, gpc
 Requires at least: 5.6
 Tested up to: 7.0
 Requires PHP: 7.2
-Stable tag: 1.5.5
+Stable tag: 1.5.6
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -71,6 +71,11 @@ React to consent:
 Filters: `rocoo_country`, `rocoo_should_render`, `rocoo_gated_blocks`.
 
 == Changelog ==
+
+= 1.5.6 =
+* The WhatConverts settings are now grouped in a branded, bordered box with the WhatConverts
+  logo, so the Profile ID, gating, and "Load before consent (essential)" options read as one
+  distinct section on the Setup tab.
 
 = 1.5.5 =
 * New **WhatConverts "Load before consent (essential)"** option. When enabled, WhatConverts

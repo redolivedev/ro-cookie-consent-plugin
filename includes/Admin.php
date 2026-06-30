@@ -625,12 +625,15 @@ class Admin {
 							</td>
 						</tr>
 						<tr>
-							<th scope="row"><label for="rocoo-wc"><?php esc_html_e( 'WhatConverts Profile ID', 'red-olive-cookie-opt-out' ); ?></label></th>
-							<td>
-								<input type="text" id="rocoo-wc" class="regular-text" name="rocoo[wc_profile_id]" value="<?php echo esc_attr( $s['wc_profile_id'] ); ?>" placeholder="102281" />
-								<p><label><input type="checkbox" name="rocoo[wc_enabled]" value="1" <?php checked( ! empty( $s['wc_enabled'] ), true ); ?> /> <?php esc_html_e( 'Load WhatConverts through this plugin, gated by consent. Turn this on, then deactivate the standalone "WhatConverts" plugin so it does not load twice or fire before consent.', 'red-olive-cookie-opt-out' ); ?></label></p>
-								<p><label><input type="checkbox" name="rocoo[wc_essential]" value="1" <?php checked( ! empty( $s['wc_essential'] ), true ); ?> /> <strong><?php esc_html_e( 'Load before consent (essential).', 'red-olive-cookie-opt-out' ); ?></strong> <?php esc_html_e( 'WhatConverts runs ungated for every visitor, so its first-party wc_* cookies are set immediately — use this when a CRM/HubSpot routine depends on them. Everything else (Meta, Google Ads, GA4, GTM) stays gated. Only enable for first-party lead/call tracking you treat as functional, and disclose it in your privacy policy.', 'red-olive-cookie-opt-out' ); ?></label></p>
-								<p class="description"><?php esc_html_e( 'The standalone WhatConverts plugin only injects this one tracking script, ungated. This replaces it and gates it. (Profile ID: WhatConverts › your profile › Tracking › Tracking Code.)', 'red-olive-cookie-opt-out' ); ?></p>
+							<td colspan="2" class="rocoo-wc-cell">
+								<div class="rocoo-wc-box">
+									<img class="rocoo-wc-box__logo" src="<?php echo esc_url( ROCOO_URL . 'assets/img/whatconverts-logo.svg' ); ?>" alt="WhatConverts" width="150" height="19" />
+									<p class="rocoo-wc-box__field"><label for="rocoo-wc"><strong><?php esc_html_e( 'WhatConverts Profile ID', 'red-olive-cookie-opt-out' ); ?></strong></label><br/>
+										<input type="text" id="rocoo-wc" class="regular-text" name="rocoo[wc_profile_id]" value="<?php echo esc_attr( $s['wc_profile_id'] ); ?>" placeholder="102281" /></p>
+									<p><label><input type="checkbox" name="rocoo[wc_enabled]" value="1" <?php checked( ! empty( $s['wc_enabled'] ), true ); ?> /> <?php esc_html_e( 'Load WhatConverts through this plugin, gated by consent. Turn this on, then deactivate the standalone "WhatConverts" plugin so it does not load twice or fire before consent.', 'red-olive-cookie-opt-out' ); ?></label></p>
+									<p><label><input type="checkbox" name="rocoo[wc_essential]" value="1" <?php checked( ! empty( $s['wc_essential'] ), true ); ?> /> <strong><?php esc_html_e( 'Load before consent (essential).', 'red-olive-cookie-opt-out' ); ?></strong> <?php esc_html_e( 'WhatConverts runs ungated for every visitor, so its first-party wc_* cookies are set immediately — use this when a CRM/HubSpot routine depends on them. Everything else (Meta, Google Ads, GA4, GTM) stays gated. Only enable for first-party lead/call tracking you treat as functional, and disclose it in your privacy policy.', 'red-olive-cookie-opt-out' ); ?></label></p>
+									<p class="description"><?php esc_html_e( 'The standalone WhatConverts plugin only injects this one tracking script, ungated. This replaces it and gates it. (Profile ID: WhatConverts › your profile › Tracking › Tracking Code.)', 'red-olive-cookie-opt-out' ); ?></p>
+								</div>
 							</td>
 						</tr>
 					</table>
