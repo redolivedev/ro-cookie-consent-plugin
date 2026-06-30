@@ -4,7 +4,7 @@ Tags: cookies, consent, gdpr, ccpa, privacy, opt-out, gpc
 Requires at least: 5.6
 Tested up to: 7.0
 Requires PHP: 7.2
-Stable tag: 1.5.6
+Stable tag: 1.5.7
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -71,6 +71,12 @@ React to consent:
 Filters: `rocoo_country`, `rocoo_should_render`, `rocoo_gated_blocks`.
 
 == Changelog ==
+
+= 1.5.7 =
+* Setup polish: the "Setup status" panel is now a collapsible accordion (the status badge
+  stays visible; click to expand the details), so it isn't taking up the right column at all
+  times. In the WhatConverts box, the "Load WhatConverts (gated)" label is bolded and its
+  follow-up note is set in smaller italics.
 
 = 1.5.6 =
 * The WhatConverts settings are now grouped in a branded, bordered box with the WhatConverts

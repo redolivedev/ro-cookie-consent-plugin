@@ -318,3 +318,23 @@
 .rocoo-admin .rocoo-wc-box__logo { display: block; width: 150px; height: auto; margin: 0 0 12px; }
 .rocoo-admin .rocoo-wc-box__field { margin-top: 0; }
 .rocoo-admin .rocoo-wc-box p { max-width: 560px; }
+.rocoo-admin .rocoo-wc-hint { font-size: 11px; color: #646970; }
+
+/* Setup status — collapsible accordion (summary stays visible; list expands on click). */
+.rocoo-admin details.rocoo-status > summary.rocoo-status__head {
+	cursor: pointer;
+	list-style: none;
+	margin-bottom: 0;
+}
+.rocoo-admin details.rocoo-status > summary.rocoo-status__head::-webkit-details-marker { display: none; }
+.rocoo-admin details.rocoo-status > summary.rocoo-status__head .rocoo-status__title { flex: 1 1 auto; }
+.rocoo-admin details.rocoo-status > summary.rocoo-status__head::after {
+	content: "\25BE"; /* down chevron */
+	margin-left: 8px;
+	font-size: 12px;
+	color: #787c82;
+	flex: 0 0 auto;
+	transition: transform .15s ease;
+}
+.rocoo-admin details.rocoo-status[open] > summary.rocoo-status__head::after { transform: rotate(180deg); }
+.rocoo-admin details.rocoo-status[open] > summary.rocoo-status__head { margin-bottom: 8px; }
