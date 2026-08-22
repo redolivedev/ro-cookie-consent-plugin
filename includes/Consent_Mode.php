@@ -66,8 +66,15 @@ class Consent_Mode {
 			$ids[] = $settings['ads_id'];
 		}
 
+		// nowprocket / data-no-optimize / data-cfasync opt these tags out of
+		// page-optimizer deferral (WP Rocket, LiteSpeed, Cloudflare Rocket
+		// Loader). The consent default MUST run before any Google tag and
+		// before banner.js pushes its update; a deferred shim inverts that
+		// order and Google keeps the denied default after the visitor accepts.
+		$attrs = 'nowprocket data-no-optimize="1" data-cfasync="false"';
+
 		echo "\n<!-- Red Olive Cookie Opt-Out: Google Consent Mode v2 -->\n";
-		echo "<script>\n";
+		echo '<script ' . $attrs . ">\n"; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- static attribute string.
 		echo "window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}\n";
 		echo "gtag('consent','default'," . wp_json_encode( $default ) . ");\n";
 		echo "gtag('set','url_passthrough',true);\n";
@@ -75,8 +82,8 @@ class Consent_Mode {
 		echo "</script>\n";
 
 		if ( ! empty( $ids ) ) {
-			echo '<script async src="https://www.googletagmanager.com/gtag/js?id=' . esc_js( $ids[0] ) . "\"></script>\n";
-			echo "<script>\ngtag('js',new Date());\n";
+			echo '<script ' . $attrs . ' async src="https://www.googletagmanager.com/gtag/js?id=' . esc_js( $ids[0] ) . "\"></script>\n"; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- static attribute string.
+			echo '<script ' . $attrs . ">\ngtag('js',new Date());\n"; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- static attribute string.
 			foreach ( $ids as $id ) {
 				echo "gtag('config','" . esc_js( $id ) . "');\n";
 			}

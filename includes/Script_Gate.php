@@ -195,9 +195,15 @@ class Script_Gate {
 	 */
 	private static function whatconverts( $profile ) {
 		$profile = preg_replace( '/[^0-9]/', '', (string) $profile );
-		return "<script>var \$wc_load=function(a){return JSON.parse(JSON.stringify(a))},"
+		// nowprocket / data-no-optimize / data-cfasync stop page optimizers
+		// (WP Rocket, LiteSpeed, Cloudflare Rocket Loader) from deferring these
+		// tags. Matters most in essential mode, where WhatConverts must set its
+		// first-party cookies for every visitor, including ones who bounce
+		// without interacting; harmless in the gated copy.
+		$attrs = 'nowprocket data-no-optimize="1" data-cfasync="false"';
+		return "<script {$attrs}>var \$wc_load=function(a){return JSON.parse(JSON.stringify(a))},"
 			. "\$wc_leads=\$wc_leads||{doc:{url:\$wc_load(document.URL),ref:\$wc_load(document.referrer),"
 			. "search:\$wc_load(location.search),hash:\$wc_load(location.hash)}};</script>"
-			. "<script async src=\"//s.ksrndkehqnwntyxlhgto.com/{$profile}.js\"></script>";
+			. "<script {$attrs} async src=\"//s.ksrndkehqnwntyxlhgto.com/{$profile}.js\"></script>";
 	}
 }

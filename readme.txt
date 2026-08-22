@@ -4,7 +4,7 @@ Tags: cookies, consent, gdpr, ccpa, privacy, opt-out, gpc
 Requires at least: 5.6
 Tested up to: 7.0
 Requires PHP: 7.2
-Stable tag: 1.5.8
+Stable tag: 1.5.9
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -71,6 +71,29 @@ React to consent:
 Filters: `rocoo_country`, `rocoo_should_render`, `rocoo_gated_blocks`.
 
 == Changelog ==
+
+= 1.5.9 =
+* Fix: gated scripts rewritten by page optimizers (WP Rocket "Delay JavaScript execution",
+  LiteSpeed Cache) never executed after consent. Optimizers move the script src into
+  data-rocket-src/data-src and swap the type to a non-JS value — including inside our inert
+  template blocks, which their own loaders never restore. The activation step now undoes
+  that rewrite before injecting the script.
+* Fix: the Google Consent Mode "update" was silently ignored on pages where a page
+  optimizer deferred the head gtag() shim: the fallback pushed a plain array into
+  dataLayer, which Google's consent layer does not recognize, so Google tags kept the
+  denied default even after the visitor accepted (GA4 collected only cookieless pings —
+  reports showed almost no data). The update is now always pushed as a real arguments
+  object, which Google honors even when it lands before the deferred default.
+* Hardening: the Consent Mode head block, banner.js, and the plugin-generated
+  WhatConverts tags now carry nowprocket / data-no-optimize / data-cfasync attributes so
+  page optimizers (WP Rocket, LiteSpeed, Cloudflare Rocket Loader) never defer them.
+  Deferring the head block inverted the Consent Mode default/update order; deferring
+  banner.js would hide the banner until first interaction (a compliance failure);
+  deferring essential-mode WhatConverts skipped visitors who bounce without interacting.
+* QA note: both bugs only manifest on WP Rocket-cached pages. Logged-in admins and
+  query-string URLs bypass the page cache, so the site looks healthy when tested
+  logged-in — always verify in a private window as an anonymous visitor (Tag Assistant
+  shows "No Google tags found" on affected pages).
 
 = 1.5.8 =
 * Removed the redundant "Gate WhatConverts under:" dropdown. WhatConverts is lead/call

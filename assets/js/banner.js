@@ -86,6 +86,19 @@
 					for (var i = 0; i < old.attributes.length; i++) {
 						s.setAttribute(old.attributes[i].name, old.attributes[i].value);
 					}
+					// Page optimizers (WP Rocket, LiteSpeed) rewrite script tags even
+					// inside the inert template — src moved to a data-* attribute, type
+					// swapped to a non-JS value — but their loaders never restore
+					// template content, so undo the rewrite or the script stays dead
+					// after consent.
+					if (!s.getAttribute('src')) {
+						var lazySrc = s.getAttribute('data-rocket-src') || s.getAttribute('data-src');
+						if (lazySrc) { s.setAttribute('src', lazySrc); }
+					}
+					var type = (s.getAttribute('type') || '').toLowerCase();
+					if (type && type !== 'module' && type !== 'text/javascript' && type !== 'application/javascript') {
+						s.setAttribute('type', 'text/javascript');
+					}
 					s.text = old.textContent;
 					old.parentNode.replaceChild(s, old);
 				});
@@ -108,12 +121,15 @@
 				personalization_storage: g(!!s.functional),
 				security_storage: 'granted'
 			};
-			if (typeof window.gtag === 'function') {
-				window.gtag('consent', 'update', sig);
-			} else {
-				window.dataLayer = window.dataLayer || [];
-				window.dataLayer.push(['consent', 'update', sig]);
-			}
+			// Google's consent layer ignores commands pushed as plain arrays — only
+			// an `arguments` object (what a real gtag() shim pushes) is recognized.
+			// window.gtag can legitimately be undefined here when a page optimizer
+			// (WP Rocket Delay JS) defers the head gtag shim past this script.
+			window.dataLayer = window.dataLayer || [];
+			var push = (typeof window.gtag === 'function')
+				? window.gtag
+				: function () { window.dataLayer.push(arguments); };
+			push('consent', 'update', sig);
 		}
 
 		function apply(s) {

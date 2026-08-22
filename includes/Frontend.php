@@ -23,6 +23,25 @@ class Frontend {
 		add_action( 'wp_footer', array( $this, 'render' ), 20 );
 		// A re-open link site owners can drop in a footer/menu instead of a dock.
 		add_shortcode( 'rocoo_cookie_settings', array( $this, 'shortcode' ) );
+		// Opt banner.js out of page-optimizer deferral (WP Rocket, LiteSpeed,
+		// Cloudflare Rocket Loader). Delaying it hides the banner until first
+		// interaction (a compliance failure) and inverts the Consent Mode
+		// default/update order.
+		add_filter( 'script_loader_tag', array( $this, 'protect_script_tag' ), 10, 2 );
+	}
+
+	/**
+	 * Mark the banner script so page optimizers execute it immediately.
+	 *
+	 * @param string $tag    The script tag HTML.
+	 * @param string $handle The script handle.
+	 * @return string
+	 */
+	public function protect_script_tag( $tag, $handle ) {
+		if ( 'rocoo-banner' === $handle ) {
+			$tag = str_replace( '<script ', '<script nowprocket data-no-optimize="1" data-cfasync="false" ', $tag );
+		}
+		return $tag;
 	}
 
 	/**
