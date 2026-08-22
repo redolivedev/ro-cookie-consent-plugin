@@ -4,7 +4,7 @@ Tags: cookies, consent, gdpr, ccpa, privacy, opt-out, gpc
 Requires at least: 5.6
 Tested up to: 7.0
 Requires PHP: 7.2
-Stable tag: 1.6.0
+Stable tag: 1.6.1
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -71,6 +71,11 @@ React to consent:
 Filters: `rocoo_country`, `rocoo_should_render`, `rocoo_gated_blocks`.
 
 == Changelog ==
+
+= 1.6.1 =
+* Change: fleet telemetry now checks in to Red Olive's public intake at
+  sign.redolive.com. Same payload, same once-a-day cadence, same opt-outs
+  (`ROCOO_DISABLE_TELEMETRY` / `rocoo_telemetry_enabled`).
 
 = 1.6.0 =
 * New: **fleet telemetry**. Once a day (and once immediately after an update) the plugin

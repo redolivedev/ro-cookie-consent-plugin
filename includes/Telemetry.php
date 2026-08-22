@@ -3,10 +3,10 @@
  * Telemetry: a small daily check-in to Red Olive's fleet inventory.
  *
  * Sends one non-blocking POST per day (plus one immediately after a version
- * change) to Red Olive's inventory so Red Olive knows which sites run this plugin,
- * what version they're on, and which page optimizers are active — so a fleet
- * incident (e.g. the v1.5.9 WP Rocket consent breakage) can be scoped by
- * query instead of guesswork.
+ * change) to Red Olive's inventory so Red Olive knows which sites run this
+ * plugin, what version they're on, and which page optimizers are active — so
+ * a fleet incident (e.g. the v1.5.9 WP Rocket consent breakage) can be scoped
+ * by query instead of guesswork.
  *
  * No visitor data is ever sent: the payload is site + environment facts only.
  * Disable with `define( 'ROCOO_DISABLE_TELEMETRY', true );` or the
