@@ -26,6 +26,7 @@ class Plugin {
 		( new Consent() )->init();
 		( new Consent_Mode() )->init();
 		( new Frontend() )->init();
+		( new Telemetry() )->init();
 
 		if ( is_admin() ) {
 			( new Admin() )->init();

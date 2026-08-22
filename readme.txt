@@ -4,7 +4,7 @@ Tags: cookies, consent, gdpr, ccpa, privacy, opt-out, gpc
 Requires at least: 5.6
 Tested up to: 7.0
 Requires PHP: 7.2
-Stable tag: 1.5.9
+Stable tag: 1.6.0
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -71,6 +71,15 @@ React to consent:
 Filters: `rocoo_country`, `rocoo_should_render`, `rocoo_gated_blocks`.
 
 == Changelog ==
+
+= 1.6.0 =
+* New: **fleet telemetry**. Once a day (and once immediately after an update) the plugin
+  sends a small non-blocking check-in to Red Olive's inventory: site URL, plugin/WP/PHP
+  versions, which page-optimizer plugins are active, and the plugin's own settings flags.
+  No visitor data is ever sent. This exists so a fleet-wide issue (like the 1.5.9 WP Rocket
+  fix) can be scoped and communicated to affected sites immediately instead of by guesswork.
+  Disable with `define( 'ROCOO_DISABLE_TELEMETRY', true );` or the
+  `rocoo_telemetry_enabled` filter.
 
 = 1.5.9 =
 * Fix: gated scripts rewritten by page optimizers (WP Rocket "Delay JavaScript execution",
