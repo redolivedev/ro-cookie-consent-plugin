@@ -4,7 +4,7 @@ Tags: cookies, consent, gdpr, ccpa, privacy, opt-out, gpc
 Requires at least: 5.6
 Tested up to: 7.0
 Requires PHP: 7.2
-Stable tag: 1.6.1
+Stable tag: 1.7.0-beta.1
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -68,9 +68,25 @@ React to consent:
       if (e.detail.consent.analytics) { /* start analytics */ }
     });
 
-Filters: `rocoo_country`, `rocoo_should_render`, `rocoo_gated_blocks`.
+Filters: `rocoo_country`, `rocoo_force_country`, `rocoo_should_render`, `rocoo_gated_blocks`.
 
 == Changelog ==
+
+= 1.7.0-beta.1 =
+* Fix: full-page caches (Varnish, WP Rocket, a CDN) no longer serve one
+  region's consent mode to everyone. The page HTML is now identical for every
+  visitor; opt-in vs opt-out is decided in the browser from Cloudflare's
+  /cdn-cgi/trace (2s timeout, cached per session in sessionStorage `ro_cc`).
+  Any failure, or country XX/T1, means opt-in. No gated tag fires until the
+  mode is known.
+* Change: the Google Consent Mode default is all-denied for everyone; the
+  visitor's region, GPC signal and stored choice are applied as an update.
+  `wait_for_update` is now 2500ms.
+* Change: GPC is read from `navigator.globalPrivacyControl` instead of the
+  request header.
+* New: admins can preview a country with `?ro_cc_test=DE` on any page; the
+  `ROCOO_FORCE_COUNTRY` constant / `rocoo_force_country` filter force one for
+  every visitor (staging only).
 
 = 1.6.1 =
 * Change: fleet telemetry now checks in to Red Olive's public intake at

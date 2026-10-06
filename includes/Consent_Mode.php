@@ -2,8 +2,8 @@
 /**
  * Consent_Mode: Google Consent Mode v2 integration.
  *
- * When advanced mode is enabled, this prints the consent "default" state in
- * <head> before any Google tag loads, loads gtag.js for the configured GA4 and
+ * When advanced mode is enabled, this prints an all-denied consent "default"
+ * in <head> before any Google tag loads, loads gtag.js for the configured GA4 and
  * Google Ads IDs in a consent-aware state, and lets banner.js push a consent
  * "update" when the visitor chooses. On denial the Google tags fall back to
  * cookieless pings, so Google can model the lost conversions and sessions
@@ -55,8 +55,11 @@ class Consent_Mode {
 			return;
 		}
 
-		$default                    = self::initial_signals( $settings );
-		$default['wait_for_update'] = 500; // ms a tag waits for our update before using the default.
+		// Denied for everyone: the HTML is cached, so it cannot know the visitor's
+		// region or stored choice. banner.js sends the real state as an update
+		// once geo.js resolves; the wait covers geo.js's 2s lookup timeout.
+		$default                    = self::signals_from_cats( array() );
+		$default['wait_for_update'] = 2500;
 
 		$ids = array();
 		if ( ! empty( $settings['ga4_id'] ) ) {
@@ -89,65 +92,6 @@ class Consent_Mode {
 			}
 			echo "</script>\n";
 		}
-	}
-
-	/**
-	 * Compute the initial consent signals for this request: the returning
-	 * visitor's stored choice if present and current, otherwise the geo default.
-	 *
-	 * @param array $settings Settings.
-	 * @return array<string,string> signal => granted|denied.
-	 */
-	public static function initial_signals( $settings ) {
-		$cats = self::stored_cats( $settings );
-
-		if ( null === $cats ) {
-			// No valid stored choice: derive from geo + the active compliance mode.
-			if ( 'optout' === Geo::mode( $settings ) ) {
-				// US/opt-out: the mode decides which categories are on by default.
-				$cats = Modes::optout_defaults( $settings );
-			} else {
-				// Opt-in (EU/UK, or High Compliance everywhere): nothing until chosen.
-				$cats = array(
-					'analytics' => false,
-					'marketing' => false,
-				);
-			}
-			// Honor GPC: opt out of the categories this mode maps the signal to.
-			if ( ! empty( $settings['honor_gpc'] ) && Geo::gpc() ) {
-				foreach ( Modes::gpc_scope( $settings ) as $gcat ) {
-					$cats[ $gcat ] = false;
-				}
-			}
-		}
-
-		return self::signals_from_cats( $cats );
-	}
-
-	/**
-	 * Read the visitor's stored consent cookie if it matches the current
-	 * consent version.
-	 *
-	 * @param array $settings Settings.
-	 * @return array<string,bool>|null Per-category booleans, or null when absent/stale.
-	 */
-	private static function stored_cats( $settings ) {
-		if ( empty( $_COOKIE[ Consent::COOKIE ] ) ) {
-			return null;
-		}
-		$data = json_decode( (string) wp_unslash( $_COOKIE[ Consent::COOKIE ] ), true );
-		if ( ! is_array( $data ) || empty( $data['cats'] ) || ! is_array( $data['cats'] ) ) {
-			return null;
-		}
-		// Ignore a stale choice from a previous category version.
-		if ( (int) ( $data['v'] ?? 0 ) !== (int) $settings['consent_version'] ) {
-			return null;
-		}
-		$out = array();
-		foreach ( $data['cats'] as $key => $val ) {
-			$out[ sanitize_key( $key ) ] = (bool) $val;
-		}
-		return $out;
 	}
 
 	/**

@@ -365,9 +365,8 @@ class Admin {
 			);
 		}
 
-		// #1 — full-page caching vs the geo/GPC decision baked into the HTML.
-		// Maximum is cache-safe (same opt-in page for everyone); Basic/Balanced
-		// are not unless the cache varies by country.
+		// #1 — full-page caching. Every level is cache-safe: the page is the same
+		// for every visitor and region/GPC/stored choice are applied in the browser.
 		$caches = $detect( array(
 			'wp-rocket/wp-rocket.php'             => 'WP Rocket',
 			'litespeed-cache/litespeed-cache.php' => 'LiteSpeed Cache',
@@ -380,18 +379,11 @@ class Admin {
 			'wp-optimize/wp-optimize.php'         => 'WP-Optimize',
 		) );
 		if ( $relies_geo ) {
-			$rows[] = $caches
-				? array(
-					'state' => 'warn',
-					'label' => __( 'Page caching vs geo', 'red-olive-cookie-opt-out' ),
-					/* translators: %s: comma-separated cache plugin names. */
-					'value' => sprintf( __( '%s detected. This level bakes the US-vs-EU (and GPC) decision into the page, which a full-page cache can serve to the wrong region. Vary the cache by country, or switch to Maximum (cache-safe).', 'red-olive-cookie-opt-out' ), implode( ', ', $caches ) ),
-				)
-				: array(
-					'state' => 'info',
-					'label' => __( 'Page caching vs geo', 'red-olive-cookie-opt-out' ),
-					'value' => __( 'This level bakes the US-vs-EU (and GPC) decision into the HTML. If any full-page cache sits in front (host or CDN, not just a plugin), make it vary by country — or use Maximum.', 'red-olive-cookie-opt-out' ),
-				);
+			$rows[] = array(
+				'state' => 'ok',
+				'label' => __( 'Page caching vs geo', 'red-olive-cookie-opt-out' ),
+				'value' => __( 'Cache-safe: every visitor gets the same page, and the browser asks Cloudflare (/cdn-cgi/trace) for its country. No need to vary the cache by country.', 'red-olive-cookie-opt-out' ),
+			);
 		} elseif ( $caches ) {
 			$rows[] = array(
 				'state' => 'ok',
@@ -714,7 +706,7 @@ class Admin {
 							<th scope="row"><?php esc_html_e( 'Geo-aware mode', 'red-olive-cookie-opt-out' ); ?></th>
 							<td>
 								<label><input type="checkbox" name="rocoo[geo_enabled]" value="1" <?php checked( $s['geo_enabled'], 1 ); ?> /> <?php esc_html_e( 'Opt-in for EU/UK visitors, opt-out for US visitors.', 'red-olive-cookie-opt-out' ); ?></label>
-								<p class="description"><?php esc_html_e( 'Requires a host or CDN that sends a visitor country header (e.g. Cloudflare). Most sites do not have this — without it, every visitor (including US) is treated as opt-in, identical to Maximum Protection, so this setting has no effect. Add Cloudflare (free) if you need real US opt-out.', 'red-olive-cookie-opt-out' ); ?></p>
+								<p class="description"><?php esc_html_e( 'Requires Cloudflare in front of the site: each visitor\'s browser asks Cloudflare\'s /cdn-cgi/trace for its country. Without Cloudflare (or if the lookup fails or takes over 2 seconds), every visitor (including US) is treated as opt-in, identical to Maximum Protection. Admins can preview a country with ?ro_cc_test=DE on any page.', 'red-olive-cookie-opt-out' ); ?></p>
 							</td>
 						</tr>
 						<tr>

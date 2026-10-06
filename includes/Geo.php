@@ -1,7 +1,10 @@
 <?php
 /**
- * Geo: resolve the visitor's consent mode (opt-in vs opt-out) and read the
- * Global Privacy Control signal.
+ * Geo: hand the browser what it needs to decide opt-in vs opt-out itself.
+ *
+ * Nothing here may vary by visitor in cached HTML: the decision is made in
+ * assets/js/geo.js from Cloudflare's /cdn-cgi/trace, so a full-page cache
+ * (Varnish, WP Rocket, a CDN) serves the same page to every region.
  *
  * @package RedOlive\CookieOptOut
  */
@@ -31,39 +34,58 @@ class Geo {
 	);
 
 	/**
-	 * Resolve the effective consent mode for this request.
+	 * Config for the in-browser resolver. Identical for every anonymous visitor;
+	 * only 'qa' differs, and only for logged-in admins, whose pages are never
+	 * served from the page cache.
 	 *
 	 * @param array $settings Settings.
-	 * @return string 'optin' | 'optout'.
+	 * @return array
 	 */
-	public static function mode( $settings ) {
-		// Explicit override wins.
+	public static function client_config( $settings ) {
+		$force = '';
 		if ( ! empty( $settings['force_mode'] ) && in_array( $settings['force_mode'], array( 'optin', 'optout' ), true ) ) {
-			return $settings['force_mode'];
+			$force = $settings['force_mode'];
+		} elseif ( empty( $settings['geo_enabled'] ) ) {
+			$force = 'optin';
 		}
 
-		// Geo disabled and no override => strict opt-in everywhere.
-		if ( empty( $settings['geo_enabled'] ) ) {
-			return 'optin';
-		}
+		/**
+		 * Force a country for every visitor (staging/QA only), e.g. via the
+		 * ROCOO_FORCE_COUNTRY constant in wp-config.php.
+		 *
+		 * @param string $code Two-letter code, or ''.
+		 */
+		$test = apply_filters( 'rocoo_force_country', defined( 'ROCOO_FORCE_COUNTRY' ) ? (string) ROCOO_FORCE_COUNTRY : '' );
+		$test = strtoupper( (string) $test );
 
-		$country = self::country();
-
-		// Unknown country => strict (opt-in).
-		if ( '' === $country ) {
-			return 'optin';
-		}
-
-		if ( in_array( $country, self::OPTIN_COUNTRIES, true ) ) {
-			return 'optin';
-		}
-
-		// Everyone else (incl. US) gets opt-out.
-		return 'optout';
+		return array(
+			'force' => $force,
+			'optin' => self::OPTIN_COUNTRIES,
+			'test'  => preg_match( '/^[A-Z]{2}$/', $test ) ? $test : '',
+			'qa'    => current_user_can( 'manage_options' ),
+		);
 	}
 
 	/**
-	 * Best-effort ISO country code from common CDN/host headers.
+	 * Print the resolver inline in <head> so the country lookup starts before
+	 * any tag or the footer banner script.
+	 *
+	 * @param array $settings Settings.
+	 */
+	public static function print_resolver( $settings ) {
+		$js = file_get_contents( ROCOO_DIR . 'assets/js/geo.js' ); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_get_contents_file_get_contents
+		if ( false === $js ) {
+			return;
+		}
+		echo "\n<!-- Red Olive Cookie Opt-Out: geo -->\n";
+		echo '<script nowprocket data-no-optimize="1" data-cfasync="false">window.ROCOO_GEO=' . wp_json_encode( self::client_config( $settings ) ) . ";\n";
+		echo $js; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- static plugin file.
+		echo "</script>\n";
+	}
+
+	/**
+	 * Best-effort ISO country code from common CDN/host headers. Admin readiness
+	 * display only; never use it to shape front-end output.
 	 *
 	 * @return string Two-letter uppercase code, or '' if unknown.
 	 */
@@ -93,14 +115,5 @@ class Geo {
 		}
 
 		return apply_filters( 'rocoo_country', '' );
-	}
-
-	/**
-	 * Whether the request carries a Global Privacy Control opt-out signal.
-	 *
-	 * @return bool
-	 */
-	public static function gpc() {
-		return isset( $_SERVER['HTTP_SEC_GPC'] ) && '1' === (string) $_SERVER['HTTP_SEC_GPC'];
 	}
 }

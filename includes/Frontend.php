@@ -19,6 +19,8 @@ class Frontend {
 	 */
 	public function init() {
 		add_action( 'wp_enqueue_scripts', array( $this, 'enqueue' ) );
+		// After Consent_Mode's default (priority 1), before any theme/plugin tags.
+		add_action( 'wp_head', array( $this, 'print_geo' ), 2 );
 		// Print templates + banner near the end of the body, before footer scripts.
 		add_action( 'wp_footer', array( $this, 'render' ), 20 );
 		// A re-open link site owners can drop in a footer/menu instead of a dock.
@@ -76,6 +78,16 @@ class Frontend {
 		 * @param bool $show Whether to render.
 		 */
 		return (bool) apply_filters( 'rocoo_should_render', $show );
+	}
+
+	/**
+	 * Print the in-browser opt-in/opt-out resolver.
+	 */
+	public function print_geo() {
+		if ( ! $this->should_render() ) {
+			return;
+		}
+		Geo::print_resolver( Settings::all() );
 	}
 
 	/**
@@ -141,8 +153,6 @@ class Frontend {
 				'cookie'     => Consent::COOKIE,
 				'days'       => (int) $settings['expiry_days'],
 				'version'    => (int) $settings['consent_version'],
-				'mode'       => Geo::mode( $settings ),
-				'gpc'        => Geo::gpc(),
 				'honorGpc'   => ! empty( $settings['honor_gpc'] ),
 				'logEnabled' => ! empty( $settings['log_enabled'] ),
 				'consentMode' => Consent_Mode::is_advanced( $settings ) ? 'advanced' : 'off',
@@ -198,10 +208,9 @@ class Frontend {
 		// Trackers the owner explicitly marked "essential" load ungated (before consent).
 		Script_Gate::render_essential( $settings );
 
-		$mode     = Geo::mode( $settings );
 		$pos      = 'top' === $settings['position'] ? 'rocoo--top' : 'rocoo--bottom';
 		$layout   = 'compact' === $settings['layout'] ? ' rocoo--compact' : '';
-		$show_dns = ( ! empty( $settings['show_dns'] ) && 'optout' === $mode );
+		$show_dns = ! empty( $settings['show_dns'] );
 
 		$body = wp_kses_post( $settings['body'] );
 		if ( ! empty( $settings['privacy_url'] ) ) {
@@ -242,7 +251,7 @@ class Frontend {
 				</div>
 				<div class="rocoo-panel__foot">
 					<?php if ( $show_dns ) : ?>
-						<button type="button" class="rocoo-link rocoo-dns" data-rocoo="donotsell"><?php echo esc_html( $settings['dns_label'] ); ?></button>
+						<button type="button" class="rocoo-link rocoo-dns" data-rocoo="donotsell" hidden><?php echo esc_html( $settings['dns_label'] ); ?></button>
 					<?php endif; ?>
 					<span class="rocoo-panel__foot-actions">
 						<button type="button" class="rocoo-btn rocoo-btn--ghost" data-rocoo="save"><?php echo esc_html( $settings['save_label'] ); ?></button>

@@ -1,6 +1,7 @@
 /* Red Olive Cookie Opt-Out — front-end consent logic.
  *
- * Reads the geo-resolved mode + config from window.ROCOO, manages the
+ * Reads config from window.ROCOO and the opt-in/opt-out mode from
+ * window.rocooGeo (geo.js, resolved in the browser), manages the
  * first-party consent cookie, and activates gated <template> scripts only for
  * consented categories. Exposes window.roConsent for theme/GTM integration.
  */
@@ -22,7 +23,9 @@
 			return;
 		}
 		var panel = root.querySelector('.rocoo-panel');
-		var mode = C.mode === 'optout' ? 'optout' : 'optin';
+		var dns = root.querySelector('[data-rocoo="donotsell"]');
+		// Opt-in until geo.js resolves (fail closed).
+		var mode = 'optin';
 		var catKeys = C.cats.map(function (c) { return c.key; });
 
 		/* ---------- cookie ---------- */
@@ -55,21 +58,28 @@
 			C.cats.forEach(function (c) {
 				state[c.key] = c.locked ? true : !!stored.cats[c.key];
 			});
-		} else if (mode === 'optout') {
+		} else {
+			// Nothing non-essential until the mode is known (see onGeo).
+			state = defaults(false);
+		}
+
+		function geoDefaults() {
+			if (mode !== 'optout') {
+				// EU/strict / High Compliance: nothing non-essential until they choose.
+				return defaults(false);
+			}
 			// US: the active compliance mode decides which categories are on by default.
 			var od = C.optoutDefaults || {};
-			state = {};
+			var s = {};
 			C.cats.forEach(function (c) {
-				state[c.key] = c.locked ? true : !!od[c.key];
+				s[c.key] = c.locked ? true : !!od[c.key];
 			});
 			// ...unless the browser sends Global Privacy Control: opt out of the
-			// categories this mode maps the signal to (mirrors Consent_Mode in PHP).
-			if (C.honorGpc && C.gpc && C.gpcScope) {
-				C.gpcScope.forEach(function (cat) { if (cat in state) { state[cat] = false; } });
+			// categories this mode maps the signal to.
+			if (C.honorGpc && navigator.globalPrivacyControl === true && C.gpcScope) {
+				C.gpcScope.forEach(function (cat) { if (cat in s) { s[cat] = false; } });
 			}
-		} else {
-			// EU/strict / High Compliance: nothing non-essential until they choose.
-			state = defaults(false);
+			return s;
 		}
 
 		/* ---------- activate gated scripts ---------- */
@@ -161,6 +171,7 @@
 		function closePanel() { if (panel) { panel.hidden = true; } }
 
 		function save(newState) {
+			hasChoice = true;
 			writeCookie({ v: C.version, mode: mode, ts: Date.now(), cats: newState });
 
 			if (C.logEnabled && C.ajaxUrl) {
@@ -246,9 +257,26 @@
 			mode: mode
 		};
 
+		function onGeo(g) {
+			mode = g.mode === 'optout' ? 'optout' : 'optin';
+			window.roConsent.mode = mode;
+			if (dns) { dns.hidden = mode !== 'optout'; }
+			// A choice made before the mode resolved (or stored earlier) stands.
+			if (hasChoice) { return; }
+			state = geoDefaults();
+			apply(state);
+			syncInputs(state);
+		}
+
 		/* ---------- run ---------- */
-		apply(state);
+		// A stored choice is explicit consent and doesn't depend on region.
+		if (hasChoice) { apply(state); }
 		syncInputs(state);
 		if (!hasChoice) { show(); }
+		if (window.rocooGeo && typeof window.rocooGeo.onResolve === 'function') {
+			window.rocooGeo.onResolve(onGeo);
+		} else {
+			onGeo({ mode: 'optin' });
+		}
 	});
 })();

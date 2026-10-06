@@ -229,6 +229,7 @@
 }
 .rocoo-panel__foot-actions { display: flex; gap: 10px; margin-left: auto; }
 .rocoo-dns { opacity: .9; }
+.rocoo .rocoo-dns[hidden] { display: none; }
 
 /* Re-open trigger (shortcode button / .rocoo-open link in a footer or menu).
    Inherits the surrounding text style so it blends into the host theme. */
